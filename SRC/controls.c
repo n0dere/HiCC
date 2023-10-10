@@ -106,7 +106,7 @@ static void Preview_OnPaint(PPREVIEW pPreview, HDC hDC, PRECT pRect)
 
 	InflateRect(pRect, x, y);
 
-	DrawEdge(hDC, pRect, EDGE_SUNKEN, BF_RECT);
+	FrameRect(hDC, pRect, GetSysColorBrush(COLOR_BTNSHADOW));
 }
 
 static LRESULT CALLBACK Preview_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
@@ -211,16 +211,11 @@ static void Palette_OnPaint(PPALETTE pPalette, HDC hDC, PRECT pRect)
 		pRect->right = (LONG)(pPalette->dbSegWidth * (i + 1));
 
 		FillRect(hDC, pRect, hBrush);
-		DrawEdge(hDC, pRect, EDGE_SUNKEN, BF_RECT);
-		DeleteObject(hBrush);
 
-		if (pPalette->bLMB_Down && PALETTE_CHKMBTN(pPalette, pRect)) {
-			hBrush = CreateSolidBrush(RGB(0, 0, 0));
-			InflateRect(pRect, -1, -1);
-			FrameRect(hDC, pRect, hBrush);
-			InflateRect(pRect, 1, 1);
-			DeleteObject(hBrush);
-		}
+		if (pPalette->bLMB_Down && PALETTE_CHKMBTN(pPalette, pRect))
+			DrawFocusRect(hDC, pRect);
+
+		DeleteObject(hBrush);
 	}
 }
 
@@ -258,7 +253,7 @@ static LRESULT CALLBACK Palette_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pPalette);
 			break;
 
-		case XXM_PALETTE_UPDATE:
+		case XXM_PALETTE_UPDATE_PALETTE:
 			pPalette->pKmPalette = (PKM_PALETTE)lParam;
 			
 			if (pPalette->pKmPalette != NULL) {
@@ -319,7 +314,7 @@ HWND Palette_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 							 x, y, nWidth, nHeight, hParent,
 							 (HMENU)(UINT_PTR)uId, NULL, NULL);
 
-	SendMessage(hWnd, XXM_PALETTE_UPDATE, 0, (LPARAM)pKmPalette);
+	SendMessage(hWnd, XXM_PALETTE_UPDATE_PALETTE, 0, (LPARAM)pKmPalette);
 
 	return hWnd;
 }
@@ -340,29 +335,105 @@ VOID Palette_SetError(HWND hPalette, UINT uMsgId)
 		SendMessage(hPalette, XXM_PALETTE_ERROR_MSG, 0, (LPARAM)szName);
 }
 
-HWND Button_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
-				   INT nHeight, UINT uNameId)
+static LRESULT CALLBACK ColorBox_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
+									  LPARAM lParam)
+{
+	LPCOLORREF lpcrColor = (LPCOLORREF)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+	PAINTSTRUCT ps;
+	RECT rect;
+	HBRUSH hBrush = NULL;
+
+	switch (uMsg) {
+	case WM_NCCREATE:
+		lpcrColor = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+							  sizeof * lpcrColor);
+
+		if (lpcrColor == NULL)
+			return FALSE;
+
+		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)lpcrColor);
+		break;
+
+	case XXM_COLORBOX_SET_COLOR:
+		*lpcrColor = (COLORREF)lParam;
+		InvalidateRect(hWnd, NULL, FALSE);
+		break;
+
+	case WM_PAINT:
+		GetClientRect(hWnd, &rect);
+		BeginPaint(hWnd, &ps);
+		hBrush = CreateSolidBrush(*lpcrColor);
+		FillRect(ps.hdc, &rect, hBrush);
+		DeleteObject(hBrush);
+		FrameRect(ps.hdc, &rect, GetSysColorBrush(COLOR_BTNSHADOW));
+		EndPaint(hWnd, &ps);
+		break;
+	
+	case WM_NCDESTROY:
+		if (lpcrColor != NULL)
+			HeapFree(GetProcessHeap(), 0, lpcrColor);
+		break;
+	}
+
+	return DefWindowProc(hWnd, uMsg, wParam, lParam);
+}
+
+HWND ColorBox_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
+					 INT nHeight)
+{
+	return CreateWindow(COLORBOXCLASSNAME, NULL, WS_CHILD | WS_VISIBLE, x, y,
+						nWidth, nHeight, hParent, (HMENU)(UINT_PTR)uId, NULL,
+						NULL);
+}
+
+VOID ColorBox_ChangeColor(HWND hColorBox, COLORREF crColor)
+{
+	if (hColorBox != NULL)
+		SendMessage(hColorBox, XXM_COLORBOX_SET_COLOR, 0, (LPARAM)crColor);
+}
+
+static HWND Window_Create(LPCTSTR pszClassName, DWORD dwStyleEx, DWORD dwStyle,
+						  HWND hParent, UINT uId, INT x, INT y, INT nWidth,
+						  INT nHeight, UINT uNameId)
 {
 	TCHAR szName[LOADSTRING_MAX_SZ] = { 0 };
 
 	if (uNameId != 0)
 		LoadString(NULL, uNameId, szName, ARRAYSIZE(szName));
 
-	return CreateWindow(TEXT("Button"), szName, WS_VISIBLE | WS_CHILD, x, y,
-						nWidth, nHeight, hParent, (HMENU)(UINT_PTR)uId,
-						NULL, NULL);
+	return CreateWindowEx(dwStyleEx, pszClassName, szName, dwStyle, x, y,
+						  nWidth, nHeight, hParent, (HMENU)(UINT_PTR)uId,
+						  NULL, NULL);
+}
+
+HWND Button_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
+				   INT nHeight, UINT uNameId)
+{
+	return Window_Create(TEXT("Button"), 0, WS_VISIBLE | WS_CHILD, hParent,
+						 uId, x, y, nWidth, nHeight, uNameId);
 }
 
 HWND Static_Create(HWND hParent, INT x, INT y, INT nWidth, INT nHeight,
 				   UINT uTextId)
 {
-	TCHAR szName[LOADSTRING_MAX_SZ] = { 0 };
+	return Window_Create(TEXT("Static"), 0, WS_VISIBLE | WS_CHILD, hParent, 0,
+						 x, y, nWidth, nHeight, uTextId);
+}
 
-	if (uTextId != 0)
-		LoadString(NULL, uTextId, szName, ARRAYSIZE(szName));
+HWND GroupBox_Create(HWND hParent, INT x, INT y, INT nWidth, INT nHeight,
+					 UINT uTextId)
+{
+	return Window_Create(TEXT("Button"), 0,
+						 WS_VISIBLE | WS_CHILD | WS_GROUP | BS_GROUPBOX,
+						 hParent, 0, x, y, nWidth, nHeight, uTextId);
+}
 
-	return CreateWindow(TEXT("Static"), szName, WS_VISIBLE | WS_CHILD, x, y,
-						nWidth, nHeight, hParent, NULL, NULL, NULL);
+HWND Edit_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
+				 INT nHeight)
+{
+	return Window_Create(TEXT("Edit"), WS_EX_CLIENTEDGE,
+						 WS_VISIBLE | WS_CHILD | ES_LEFT | ES_CENTER, hParent,
+						 uId, x, y, nWidth, nHeight, 0);
 }
 
 BOOL Controls_RegisterAllClasses(VOID)
@@ -386,11 +457,19 @@ BOOL Controls_RegisterAllClasses(VOID)
 	if (RegisterClass(&wndClass) == 0)
 		return FALSE;
 
+	wndClass.lpfnWndProc = ColorBox_Proc;
+	wndClass.lpszClassName = COLORBOXCLASSNAME;
+	wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+
+	if (RegisterClass(&wndClass) == 0)
+		return FALSE;
+
 	return TRUE;
 }
 
 VOID Controls_UnregisterAllClasses(VOID)
 {
+	UnregisterClass(COLORBOXCLASSNAME, NULL);
 	UnregisterClass(PALETTECLASSNAME, NULL);
 	UnregisterClass(PREVIEWCLASSNAME, NULL);
 }

@@ -11,8 +11,8 @@
 
 #define DW_PALETTE_K                7
 
-#define WINDOW_WIDTH                450
-#define WINDOW_HEIGHT               600
+#define WINDOW_WIDTH                415
+#define WINDOW_HEIGHT               480
 
 static const TCHAR *g_pszWindowClassName = TEXT("HiCC MainWindow");
 static const TCHAR *g_pszWindowName = TEXT("Hilight Color Changer");
@@ -146,22 +146,31 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
         KM_SortPaletteByBrightness(pMainWnd->pkmPalette);
     }
 
-    pMainWnd->hWndPreview = Preview_Create(hWnd, 0, 25, 25, 384, 250);
+    GroupBox_Create(hWnd, 7, 7, 385, 243, IDS_PREVIEW);
 
-    Palette_Create(hWnd, IDC_PALETTE, 25, 280, 384, 25, pMainWnd->pkmPalette);
+    pMainWnd->hWndPreview = Preview_Create(hWnd, 0, 15, 26, 369, 190);
+
+    Palette_Create(hWnd, IDC_PALETTE, 15, 216, 369, 25, pMainWnd->pkmPalette);
 
     if (pMainWnd->hbmWallpaper == NULL)
         Palette_SetError(GetDlgItem(hWnd, IDC_PALETTE), IDS_NO_WALLPAPER);
 
-    Static_Create(hWnd, 25, 318, 385, 25, IDS_HILIGHT);
-    Button_Create(hWnd, 0, 25, 338, 80, 25, IDS_CHANGE);
+    GroupBox_Create(hWnd, 7, 252, 385, 74, IDS_HILIGHT);
+    ColorBox_Create(hWnd, 0, 15, 271, 23, 23);
+    Edit_SetReadOnly(Edit_Create(hWnd, 0, 48, 271, 80, 23), TRUE);
+    Button_Create(hWnd, 0, 305, 271, 80, 23, IDS_CHANGE);
+    Static_Create(hWnd, 15, 304, 250, 17, IDS_COLOR_PALETTE);
 
-    Static_Create(hWnd, 25, 380, 385, 25, IDS_HTC);
+    GroupBox_Create(hWnd, 7, 328, 385, 74, IDS_HTC);
+    ColorBox_Create(hWnd, 0, 15, 347, 23, 23);
+    Edit_SetReadOnly(Edit_Create(hWnd, 0, 48, 347, 80, 23), TRUE);
+    Button_Create(hWnd, 0, 305, 347, 80, 23, IDS_CHANGE);
+    Static_Create(hWnd, 15, 380, 250, 17, IDS_COLOR_PALETTE);
 
-    Button_Create(hWnd, IDC_BUTTON_RESET, 25, 500, 120, 25, IDS_RESET);
-    Button_Create(hWnd, IDC_BUTTON_ABOUT, 224, 500, 25, 25, IDS_ABOUT);
-    Button_Create(hWnd, IDC_BUTTON_CANCEL, 249, 500, 80, 25, IDS_CANCEL);
-    Button_Create(hWnd, IDC_BUTTON_APPLY, 329, 500, 80, 25, IDS_APPLY);
+    Button_Create(hWnd, IDC_BUTTON_RESET, 6, 411, 120, 23, IDS_RESET);
+    Button_Create(hWnd, IDC_BUTTON_ABOUT, 198, 411, 23, 23, IDS_ABOUT);
+    Button_Create(hWnd, IDC_BUTTON_CANCEL, 227, 411, 80, 23, IDS_CANCEL);
+    Button_Create(hWnd, IDC_BUTTON_APPLY, 313, 411, 80, 23, IDS_APPLY);
 
     EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_APPLY), FALSE);
 
@@ -236,6 +245,8 @@ static LRESULT CALLBACK MainWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
 static HWND MainWindow_Create(HINSTANCE hInstance)
 {
     WNDCLASS wndClass;
+    DWORD dwStyle = WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU;
+    DWORD dwExStyle = WS_EX_APPWINDOW;
     HWND hWnd = NULL;
 
     ZeroMemory(&wndClass, sizeof wndClass);
@@ -250,11 +261,9 @@ static HWND MainWindow_Create(HINSTANCE hInstance)
     if (RegisterClass(&wndClass) == 0)
         return NULL;
 
-    return CreateWindowEx(0, g_pszWindowClassName, g_pszWindowName,
-                          WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU,
-                          CW_USEDEFAULT, CW_USEDEFAULT,
-                          WINDOW_WIDTH, WINDOW_HEIGHT, NULL, NULL,
-                          hInstance, NULL);
+    return CreateWindowEx(dwExStyle, g_pszWindowClassName, g_pszWindowName,
+                          dwStyle, CW_USEDEFAULT, CW_USEDEFAULT, WINDOW_WIDTH,
+                          WINDOW_HEIGHT, NULL, NULL, hInstance, NULL);
 }
 
 INT WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,

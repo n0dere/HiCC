@@ -15,3 +15,5 @@
 #define IDS_HTC						1006
 #define IDS_CHANGE					1007
 #define IDS_NO_WALLPAPER			1008
+#define IDS_PREVIEW					1009
+#define IDS_COLOR_PALETTE			1010
