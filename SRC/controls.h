@@ -14,12 +14,15 @@
 
 #define XXM_PALETTE_UPDATE				(WM_USER + 4)
 #define XXM_PALETTE_CLRSEL				(WM_USER + 5)
+#define XXM_PALETTE_ERROR_MSG			(WM_USER + 6)
 
 HWND Preview_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 					INT nHeight);
 
 HWND Palette_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 					INT nHeight, PKM_PALETTE pKmPalette);
+
+VOID Palette_SetError(HWND hPalette, UINT uMsgId);
 
 HWND Button_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 				   INT nHeight, UINT uNameId);

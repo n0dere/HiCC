@@ -55,12 +55,21 @@ static void Preview_PaintBG(PPREVIEW pPreview, HDC hDC, PRECT pRect)
 	if (pPreview == NULL || hDC == NULL || pRect == NULL)
 		return;
 
-	if (pPreview->hBitmapBG == NULL)
+	if (pPreview->hBitmapBG == NULL) {
+		FillRect(hDC, pRect, GetSysColorBrush(COLOR_BACKGROUND));
 		return;
+	}
 
 	GetObject(pPreview->hBitmapBG, sizeof bm, (LPVOID)&bm);
 
+	if (bm.bmWidth < pRect->right || bm.bmHeight < pRect->bottom)
+		FillRect(hDC, pRect, GetSysColorBrush(COLOR_BACKGROUND));
+
 	hDCBitmap = CreateCompatibleDC(hDC);
+
+	if (hDCBitmap == NULL)
+		return;
+
 	hOldBitmap = SelectObject(hDCBitmap, pPreview->hBitmapBG);
 
 	x = bm.bmWidth - (INT)((pRect->right + bm.bmWidth) / 2.0);
@@ -80,18 +89,21 @@ static void Preview_OnPaint(PPREVIEW pPreview, HDC hDC, PRECT pRect)
 	if (pPreview == NULL || hDC == NULL || pRect == NULL)
 		return;
 
-	FillRect(hDC, pRect, GetSysColorBrush(COLOR_BACKGROUND));
 	Preview_PaintBG(pPreview, hDC, pRect);
 
 	x = (INT)(pRect->left + pRect->right * 0.2); /* 20% */
 	y = (INT)(pRect->top + pRect->bottom * 0.2); /* 20% */
 
 	InflateRect(pRect, -x, -y);
+
 	DrawTransparentRectangle(hDC, pRect, pPreview->crHotTrackingColor, 65);
+
 	hBrush = CreateSolidBrush(pPreview->crHilight);
 	FrameRect(hDC, pRect, hBrush);
-	DrawIcon(hDC, pRect->right, pRect->bottom, LoadCursor(NULL, IDC_ARROW));
 	DeleteObject(hBrush);
+
+	DrawIcon(hDC, pRect->right, pRect->bottom, LoadCursor(NULL, IDC_ARROW));
+
 	InflateRect(pRect, x, y);
 
 	DrawEdge(hDC, pRect, EDGE_SUNKEN, BF_RECT);
@@ -118,21 +130,17 @@ static LRESULT CALLBACK Preview_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
 
 		case XXM_PREVIEW_UPDATE_BG:
 			pPreview->hBitmapBG = (HBITMAP)lParam;
-			InvalidateRect(hWnd, NULL, FALSE);
+			InvalidateRect(hWnd, NULL, TRUE);
 			break;
 
 		case XXM_PREVIEW_UPDATE_HILIGHT:
 			pPreview->crHilight = (COLORREF)lParam;
-			GetClientRect(hWnd, &rect);
-			InflateRect(&rect, -5, -5);
-			InvalidateRect(hWnd, &rect, FALSE);
+			InvalidateRect(hWnd, NULL, TRUE);
 			break;
 
 		case XXM_PREVIEW_UPDATE_HTC:
 			pPreview->crHotTrackingColor = (COLORREF)lParam;
-			GetClientRect(hWnd, &rect);
-			InflateRect(&rect, -5, -5);
-			InvalidateRect(hWnd, &rect, FALSE);
+			InvalidateRect(hWnd, NULL, TRUE);
 			break;
 
 		case WM_PAINT:
@@ -154,9 +162,9 @@ static LRESULT CALLBACK Preview_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
 HWND Preview_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 					INT nHeight)
 {
-	return CreateWindow(PREVIEWCLASSNAME, NULL, WS_CHILD | WS_VISIBLE,
-						x, y, nWidth, nHeight, hParent, (HMENU)uId, NULL,
-						NULL);
+	return CreateWindowEx(WS_EX_COMPOSITED, PREVIEWCLASSNAME, NULL,
+						  WS_CHILD | WS_VISIBLE, x, y, nWidth, nHeight,
+						  hParent, (HMENU)(UINT_PTR)uId, NULL, NULL);
 }
 
 typedef struct tagPALETTE
@@ -165,7 +173,23 @@ typedef struct tagPALETTE
 	PKM_PALETTE				pKmPalette;
 	BOOL					bLMB_Down;
 	DOUBLE					dbSegWidth;
+	LPTSTR					pszErrorMsg;
 } *PPALETTE;
+
+static void Palette_PaintEmpty(PPALETTE pPalette, HDC hDC, PRECT pRect)
+{
+	FillRect(hDC, pRect, GetSysColorBrush(COLOR_BACKGROUND));
+
+	if (pPalette->pszErrorMsg != NULL) {
+		SetTextColor(hDC, RGB(255, 255, 255));
+		SetBkMode(hDC, TRANSPARENT);
+
+		DrawText(hDC, pPalette->pszErrorMsg, -1, pRect,
+				 DT_VCENTER | DT_SINGLELINE | DT_CENTER);
+	}
+	
+	DrawEdge(hDC, pRect, EDGE_SUNKEN, BF_RECT);
+}
 
 static void Palette_OnPaint(PPALETTE pPalette, HDC hDC, PRECT pRect)
 {
@@ -176,12 +200,7 @@ static void Palette_OnPaint(PPALETTE pPalette, HDC hDC, PRECT pRect)
 		return;
 
 	if (pPalette->pKmPalette == NULL) {
-		FillRect(hDC, pRect, GetSysColorBrush(COLOR_BACKGROUND));
-		SetTextColor(hDC, RGB(255, 255, 255));
-		SetBkMode(hDC, TRANSPARENT);
-		DrawText(hDC, L"No Wallpapers", -1, pRect,
-			     DT_VCENTER | DT_SINGLELINE | DT_CENTER);
-		DrawEdge(hDC, pRect, EDGE_SUNKEN, BF_RECT);
+		Palette_PaintEmpty(pPalette, hDC, pRect);
 		return;
 	}
 
@@ -197,11 +216,9 @@ static void Palette_OnPaint(PPALETTE pPalette, HDC hDC, PRECT pRect)
 
 		if (pPalette->bLMB_Down && PALETTE_CHKMBTN(pPalette, pRect)) {
 			hBrush = CreateSolidBrush(RGB(0, 0, 0));
-			pRect->right -= 1;
-			pRect->bottom -= 1;
+			InflateRect(pRect, -1, -1);
 			FrameRect(hDC, pRect, hBrush);
-			pRect->right += 1;
-			pRect->bottom += 1;
+			InflateRect(pRect, 1, 1);
 			DeleteObject(hBrush);
 		}
 	}
@@ -232,12 +249,12 @@ static LRESULT CALLBACK Palette_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
 
 	switch (uMsg) {
 		case WM_NCCREATE:
-			pPalette = HeapAlloc(GetProcessHeap(), 0, sizeof * pPalette);
+			pPalette = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+								 sizeof * pPalette);
 
 			if (pPalette == NULL)
 				return FALSE;
 
-			ZeroMemory(pPalette, sizeof * pPalette);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)pPalette);
 			break;
 
@@ -250,6 +267,10 @@ static LRESULT CALLBACK Palette_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
 				pPalette->dbSegWidth = ((DOUBLE)rect.right) / dwColors;
 			}
 
+			break;
+
+		case XXM_PALETTE_ERROR_MSG:
+			pPalette->pszErrorMsg = (LPTSTR)lParam;
 			break;
 
 		case WM_PAINT:
@@ -279,8 +300,12 @@ static LRESULT CALLBACK Palette_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
 			break;
 
 		case WM_NCDESTROY:
-			if (pPalette != NULL)
+			if (pPalette != NULL) {
+				if (pPalette->pszErrorMsg != NULL)
+					HeapFree(GetProcessHeap(), 0, pPalette->pszErrorMsg);
+
 				HeapFree(GetProcessHeap(), 0, pPalette);
+			}
 			break;
 	}
 
@@ -291,12 +316,28 @@ HWND Palette_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 					INT nHeight, PKM_PALETTE pKmPalette)
 {
 	HWND hWnd = CreateWindow(PALETTECLASSNAME, NULL, WS_CHILD | WS_VISIBLE,
-							 x, y, nWidth, nHeight, hParent, (HMENU)uId, NULL,
-							 NULL);
+							 x, y, nWidth, nHeight, hParent,
+							 (HMENU)(UINT_PTR)uId, NULL, NULL);
 
 	SendMessage(hWnd, XXM_PALETTE_UPDATE, 0, (LPARAM)pKmPalette);
 
 	return hWnd;
+}
+
+VOID Palette_SetError(HWND hPalette, UINT uMsgId)
+{
+	LPTSTR szName = NULL;
+
+	if (uMsgId != 0) {
+		szName = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+			               LOADSTRING_MAX_SZ * (sizeof * szName));
+
+		if (szName != NULL)
+			LoadString(NULL, uMsgId, szName, LOADSTRING_MAX_SZ);
+	}
+
+	if (hPalette != NULL)
+		SendMessage(hPalette, XXM_PALETTE_ERROR_MSG, 0, (LPARAM)szName);
 }
 
 HWND Button_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
@@ -308,7 +349,8 @@ HWND Button_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 		LoadString(NULL, uNameId, szName, ARRAYSIZE(szName));
 
 	return CreateWindow(TEXT("Button"), szName, WS_VISIBLE | WS_CHILD, x, y,
-						nWidth, nHeight, hParent, (HMENU)uId, NULL, NULL);
+						nWidth, nHeight, hParent, (HMENU)(UINT_PTR)uId,
+						NULL, NULL);
 }
 
 HWND Static_Create(HWND hParent, INT x, INT y, INT nWidth, INT nHeight,

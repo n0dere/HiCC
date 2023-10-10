@@ -53,39 +53,6 @@ static BOOL CALLBACK SetFontCallback(HWND child, LPARAM font)
     return TRUE;
 }
 
-#if 0
-static VOID Status_ChangeFormatted(HWND hWndStatus, LPCTSTR pszMessage, ...)
-{
-    LPTSTR pszBuffer = NULL;
-    va_list vaList = NULL;
-    DWORD cbBufferLen = 0;
-
-    if (hWndStatus == NULL || pszMessage == NULL)
-        return;
-
-    va_start(vaList, pszMessage);
-
-    cbBufferLen = _vsctprintf(pszMessage, vaList);
-
-    if (cbBufferLen < 0)
-        return;
-
-    pszBuffer = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
-                          (cbBufferLen + 1) * (sizeof *pszBuffer));
-
-    if (pszBuffer == NULL)
-        return;
-
-    _vstprintf_s(pszBuffer, cbBufferLen + 1, pszMessage, vaList);
-
-    va_end(vaList);
-
-    SendMessage(hWndStatus, SB_SETTEXT, 0, (LPARAM)pszBuffer);
-
-    HeapFree(GetProcessHeap(), 0, pszBuffer);
-}
-#endif
-
 static VOID MainWindow_Update(PMAINWINDOW pMainWnd, BOOL bEnableApply)
 {
     SendMessage(pMainWnd->hWndPreview, XXM_PREVIEW_UPDATE_HILIGHT, 0,
@@ -171,18 +138,25 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     pMainWnd->hbmWallpaper = DesktopWallpaperGetHBITMAP();
     pMainWnd->crHilight = ColorsRegistryGetHilight();
     pMainWnd->crHotTrackingColor = ColorsRegistryGetHTC();
-    pMainWnd->pkmPalette = KM_GeneratePaletteFromHBITMAP(DW_PALETTE_K,
-        pMainWnd->hbmWallpaper);
 
-    if (pMainWnd->pkmPalette != NULL)
+    if (pMainWnd->hbmWallpaper != NULL) {
+        pMainWnd->pkmPalette = KM_GeneratePaletteFromHBITMAP(DW_PALETTE_K,
+            pMainWnd->hbmWallpaper);
+
         KM_SortPaletteByBrightness(pMainWnd->pkmPalette);
+    }
 
     pMainWnd->hWndPreview = Preview_Create(hWnd, 0, 25, 25, 384, 250);
 
-    Palette_Create(hWnd, 0, 25, 280, 384, 25, pMainWnd->pkmPalette);
+    Palette_Create(hWnd, IDC_PALETTE, 25, 280, 384, 25, pMainWnd->pkmPalette);
 
-    Static_Create(hWnd, 25, 325, 385, 25, IDS_HILIGHT);
-    Static_Create(hWnd, 25, 350, 385, 25, IDS_HTC);
+    if (pMainWnd->hbmWallpaper == NULL)
+        Palette_SetError(GetDlgItem(hWnd, IDC_PALETTE), IDS_NO_WALLPAPER);
+
+    Static_Create(hWnd, 25, 318, 385, 25, IDS_HILIGHT);
+    Button_Create(hWnd, 0, 25, 338, 80, 25, IDS_CHANGE);
+
+    Static_Create(hWnd, 25, 380, 385, 25, IDS_HTC);
 
     Button_Create(hWnd, IDC_BUTTON_RESET, 25, 500, 120, 25, IDS_RESET);
     Button_Create(hWnd, IDC_BUTTON_ABOUT, 224, 500, 25, 25, IDS_ABOUT);
