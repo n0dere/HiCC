@@ -67,4 +67,9 @@
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\RESOURCES\icon.ico">
+      <Filter>Resources</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

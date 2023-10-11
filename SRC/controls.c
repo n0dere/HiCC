@@ -21,9 +21,6 @@
 
 #define LOADSTRING_MAX_SZ           512
 
-#define PALETTE_CHKMBTN(palette, prect)                                     \
-    ((prect)->left < (palette)->iCurX && (prect)->right > (palette)->iCurX)
-
 static void DrawTransparentRectangle(HDC hDC, LPRECT rect, COLORREF color,
                                      BYTE bAlpha)
 {
@@ -200,7 +197,7 @@ VOID Preview_UpdateBG(HWND hPreview, HBITMAP hbmBG)
 
 typedef struct tagPALETTE
 {
-    INT                     iCurX, iCurY;
+    POINT                   pointCursor;
     PKM_PALETTE             pKmPalette;
     BOOL                    bLMB_Down;
     DOUBLE                  dbSegWidth;
@@ -226,6 +223,7 @@ static void Palette_OnPaint(PPALETTE pPalette, HDC hDC, PRECT pRect)
 {
     HBRUSH hBrush = NULL;
     DWORD dwCount = 0;
+    BOOL bInRect = FALSE;
     INT i;
 
     if (pPalette == NULL || hDC == NULL || pRect == NULL)
@@ -246,7 +244,9 @@ static void Palette_OnPaint(PPALETTE pPalette, HDC hDC, PRECT pRect)
 
         FillRect(hDC, pRect, hBrush);
 
-        if (pPalette->bLMB_Down && PALETTE_CHKMBTN(pPalette, pRect)) {
+        bInRect = PtInRect(pRect, pPalette->pointCursor);
+
+        if (pPalette->bLMB_Down && bInRect) {
             InflateRect(pRect, -1, -1);
             DrawFocusRect(hDC, pRect);
             InflateRect(pRect, 1, 1);
@@ -268,7 +268,7 @@ static void Palette_OnMouseUp(PPALETTE pPalette, HWND hWnd)
     if (pPalette == NULL || hWnd == NULL || pPalette->pKmPalette == NULL)
         return;
 
-    i = (INT)(pPalette->iCurX / pPalette->dbSegWidth);
+    i = (INT)(pPalette->pointCursor.x / pPalette->dbSegWidth);
 
     SendMessage(GetParent(hWnd), XXM_PALETTE_CLRSEL, 0,
                 (LPARAM)pPalette->pKmPalette->aColors[i]);
@@ -318,8 +318,8 @@ static LRESULT CALLBACK Palette_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
 
         case WM_MOUSEMOVE:
-            pPalette->iCurX = GET_X_LPARAM(lParam);
-            pPalette->iCurY = GET_Y_LPARAM(lParam);
+            pPalette->pointCursor.x = GET_X_LPARAM(lParam);
+            pPalette->pointCursor.y = GET_Y_LPARAM(lParam);
             tme.cbSize = sizeof(TRACKMOUSEEVENT);
             tme.dwFlags = TME_LEAVE;
             tme.hwndTrack = hWnd;

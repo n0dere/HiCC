@@ -341,6 +341,7 @@ static HWND MainWindow_Create(HINSTANCE hInstance)
     wndClass.cbWndExtra = sizeof(MAINWINDOW);
     wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
+    wndClass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPICON));
 
     if (RegisterClass(&wndClass) == 0)
         return NULL;
@@ -359,7 +360,7 @@ INT WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
         MainWindow_ShowErrorDialog(NULL);
         return -1;
     }
-
+    
     ShowWindow(g_hMainWindow, nCmdShow);
 
     while (GetMessage(&msg, NULL, 0, 0) > 0) {
