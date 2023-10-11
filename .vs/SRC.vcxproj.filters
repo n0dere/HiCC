@@ -33,6 +33,9 @@
     <ClCompile Include="..\SRC\controls.c">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="..\SRC\dlgabout.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\SRC\bmutils.h">

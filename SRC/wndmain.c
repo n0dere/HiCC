@@ -32,8 +32,11 @@
 #define CHANGE_HILIGHT              0
 #define CHANGE_HTC                  1
 
+#define WINDOW_TITLE_BUFFER_SZ      256
+
 static const TCHAR *g_pszWindowClassName = TEXT("HiCC MainWindow");
-static const TCHAR *g_pszWindowName = TEXT("Hilight Color Changer");
+
+static WCHAR g_szWindowTitle[WINDOW_TITLE_BUFFER_SZ];
 
 static HWND g_hMainWindow = NULL;
 
@@ -47,6 +50,8 @@ typedef struct tagMAINWINDOW
     COLORREF            crHotTrackingColor;
     COLORREF            acrCustom[16];
 } MAINWINDOW, *PMAINWINDOW;
+
+extern VOID AboutBox_Show(HINSTANCE hInstance, HWND hWnd);
 
 static BOOL CALLBACK SetFontCallback(HWND child, LPARAM lParam)
 {
@@ -169,7 +174,7 @@ static VOID MainWindow_ShowErrorDialog(HWND hWnd)
     LPTSTR lpszErrorMessage = NULL;
 
     static const DWORD dwFmtFlags = FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                                    FORMAT_MESSAGE_FROM_SYSTEM |
+                                    FORMAT_MESSAGE_FROM_SYSTEM     |
                                     FORMAT_MESSAGE_IGNORE_INSERTS;
 
     FormatMessage(dwFmtFlags, NULL, GetLastError(),
@@ -177,7 +182,7 @@ static VOID MainWindow_ShowErrorDialog(HWND hWnd)
                   (LPTSTR)&lpszErrorMessage, 0, NULL);
 
     if (lpszErrorMessage != NULL) {
-        MessageBox(hWnd, lpszErrorMessage, g_pszWindowName,
+        MessageBox(hWnd, lpszErrorMessage, g_szWindowTitle,
                    MB_OK | MB_ICONERROR);
 
         HeapFree(GetProcessHeap(), 0, lpszErrorMessage);
@@ -198,6 +203,10 @@ static BOOL MainWindow_OnCommand(PMAINWINDOW pMainWnd, DWORD dwId)
 
         case IDC_BUTTON_APPLY:
             return ApplyButton_OnClick(pMainWnd);
+
+        case IDC_BUTTON_ABOUT:
+            AboutBox_Show(GetModuleHandle(NULL), pMainWnd->hWnd);
+            return TRUE;
 
         case IDC_BUTTON_CANCEL:
             DestroyWindow(pMainWnd->hWnd);
@@ -346,7 +355,7 @@ static HWND MainWindow_Create(HINSTANCE hInstance)
     if (RegisterClass(&wndClass) == 0)
         return NULL;
 
-    return CreateWindowEx(dwExStyle, g_pszWindowClassName, g_pszWindowName,
+    return CreateWindowEx(dwExStyle, g_pszWindowClassName, g_szWindowTitle,
                           dwStyle, CW_USEDEFAULT, CW_USEDEFAULT, WINDOW_WIDTH,
                           WINDOW_HEIGHT, NULL, NULL, hInstance, NULL);
 }
@@ -355,6 +364,9 @@ INT WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                      PTSTR pCmdLine, INT nCmdShow)
 {
     MSG msg;
+
+    LoadString(hInstance, IDS_WINDOW_TITLE, g_szWindowTitle,
+               WINDOW_TITLE_BUFFER_SZ);
 
     if ((g_hMainWindow = MainWindow_Create(hInstance)) == NULL) {
         MainWindow_ShowErrorDialog(NULL);

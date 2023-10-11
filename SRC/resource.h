@@ -26,8 +26,12 @@
 #define IDC_CLRBOX_HI               109
 #define IDC_CLRBOX_HTC              110
 #define IDC_PALETTE                 111
+#define IDC_DLG_URL_GITHUB          112
+#define IDC_DLG_EDIT_LICENSE        113
+#define IDC_DLG_APPNAME             114
 
 #define IDI_APPICON                 501
+#define IDD_ABOUTBOX                502
 
 #define IDS_RESET                   1001
 #define IDS_CANCEL                  1002
@@ -40,3 +44,6 @@
 #define IDS_PREVIEW                 1009
 #define IDS_DESC_HI                 1010
 #define IDS_DESC_HTC                1011
+#define IDS_WINDOW_TITLE            1012
+#define IDS_GITHUB_URL              1013
+#define IDS_GNU_GPL_V3              1014
