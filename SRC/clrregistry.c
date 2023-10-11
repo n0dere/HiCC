@@ -1,3 +1,20 @@
+/*
+    This file is part of Hilight Color Changer (HiCC).
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with HiCC.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "clrregistry.h"
 
 #include <tchar.h>
@@ -6,10 +23,10 @@
 
 #define STRING_RGB_SZ               12
 
-#define RGB_CMP_VALID(clr_cmp)	((clr_cmp) >= 0 && (clr_cmp) < 256)
+#define RGB_CMP_VALID(clr_cmp)  ((clr_cmp) >= 0 && (clr_cmp) < 256)
 
-#define RGB_IS_VALID(r, g, b)	                                    \
-	(RGB_CMP_VALID(r) && RGB_CMP_VALID(g) && RGB_CMP_VALID(b))
+#define RGB_IS_VALID(r, g, b)                                       \
+    (RGB_CMP_VALID(r) && RGB_CMP_VALID(g) && RGB_CMP_VALID(b))
 
 static const TCHAR* g_pszColorsRegistrySubKey = TEXT("Control Panel\\Colors");
 
