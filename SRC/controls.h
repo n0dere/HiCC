@@ -2,6 +2,8 @@
 #define _CONTROLS_H_
 
 #include <Windows.h>
+#include <windowsx.h>
+#include <CommCtrl.h>
 
 #include "clrkmeans.h"
 
@@ -21,6 +23,10 @@
 
 HWND Preview_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 					INT nHeight);
+
+VOID Preview_UpdateColors(HWND hPreview, COLORREF crHi, COLORREF crHTC);
+
+VOID Preview_UpdateBG(HWND hPreview, HBITMAP hbmBG);
 
 HWND Palette_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 					INT nHeight, PKM_PALETTE pKmPalette);

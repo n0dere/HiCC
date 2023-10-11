@@ -1,8 +1,5 @@
 #include "controls.h"
 
-#include <CommCtrl.h>
-#include <windowsx.h>
-
 #include "resource.h"
 
 #define LOADSTRING_MAX_SZ			512
@@ -167,6 +164,23 @@ HWND Preview_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 						  hParent, (HMENU)(UINT_PTR)uId, NULL, NULL);
 }
 
+VOID Preview_UpdateColors(HWND hPreview, COLORREF crHi, COLORREF crHTC)
+{
+	if (hPreview == NULL)
+		return;
+
+	SendMessage(hPreview, XXM_PREVIEW_UPDATE_HILIGHT, 0, (LPARAM)crHi);
+	SendMessage(hPreview, XXM_PREVIEW_UPDATE_HTC, 0, (LPARAM)crHTC);
+}
+
+VOID Preview_UpdateBG(HWND hPreview, HBITMAP hbmBG)
+{
+	if (hPreview == NULL || hbmBG == NULL)
+		return;
+
+	SendMessage(hPreview, XXM_PREVIEW_UPDATE_BG, 0, (LPARAM)hbmBG);
+}
+
 typedef struct tagPALETTE
 {
 	INT						iCurX, iCurY;
@@ -194,6 +208,7 @@ static void Palette_PaintEmpty(PPALETTE pPalette, HDC hDC, PRECT pRect)
 static void Palette_OnPaint(PPALETTE pPalette, HDC hDC, PRECT pRect)
 {
 	HBRUSH hBrush = NULL;
+	DWORD dwCount = 0;
 	INT i;
 
 	if (pPalette == NULL || hDC == NULL || pRect == NULL)
@@ -204,7 +219,9 @@ static void Palette_OnPaint(PPALETTE pPalette, HDC hDC, PRECT pRect)
 		return;
 	}
 
-	for (i = 0; i < (INT)pPalette->pKmPalette->dwColorsCount; i++) {
+	dwCount = pPalette->pKmPalette->dwColorsCount;
+
+	for (i = 0; i < (INT)dwCount; i++) {
 		hBrush = CreateSolidBrush(pPalette->pKmPalette->aColors[i]);
 
 		pRect->left = (LONG)(pPalette->dbSegWidth * i);
@@ -212,11 +229,19 @@ static void Palette_OnPaint(PPALETTE pPalette, HDC hDC, PRECT pRect)
 
 		FillRect(hDC, pRect, hBrush);
 
-		if (pPalette->bLMB_Down && PALETTE_CHKMBTN(pPalette, pRect))
+		if (pPalette->bLMB_Down && PALETTE_CHKMBTN(pPalette, pRect)) {
+			InflateRect(pRect, -1, -1);
 			DrawFocusRect(hDC, pRect);
+			InflateRect(pRect, 1, 1);
+		}
 
 		DeleteObject(hBrush);
 	}
+
+	pRect->left = 0;
+	pRect->right = (LONG)(pPalette->dbSegWidth * dwCount);
+
+	FrameRect(hDC, pRect, GetSysColorBrush(COLOR_BTNSHADOW));
 }
 
 static void Palette_OnMouseUp(PPALETTE pPalette, HWND hWnd)

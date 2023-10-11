@@ -2,10 +2,13 @@
 #define IDC_BUTTON_CANCEL           102
 #define IDC_BUTTON_APPLY            103
 #define IDC_BUTTON_ABOUT            104
-#define IDC_BUTTON_COLOR1           105
-#define IDC_BUTTON_COLOR2           106
-
-#define IDC_PALETTE					107
+#define IDC_BUTTON_CHANGE_HI        105
+#define IDC_BUTTON_CHANGE_HTC       106
+#define IDC_EDIT_HI					107
+#define IDC_EDIT_HTC				108
+#define IDC_CLRBOX_HI				109
+#define IDC_CLRBOX_HTC				110
+#define IDC_PALETTE					111
 
 #define IDS_RESET					1001
 #define IDS_CANCEL					1002
@@ -16,4 +19,5 @@
 #define IDS_CHANGE					1007
 #define IDS_NO_WALLPAPER			1008
 #define IDS_PREVIEW					1009
-#define IDS_COLOR_PALETTE			1010
+#define IDS_DESC_HI					1010
+#define IDS_DESC_HTC				1011
