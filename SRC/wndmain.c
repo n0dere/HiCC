@@ -26,8 +26,13 @@
 
 #define DW_PALETTE_K                7
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+#define WINDOW_WIDTH                405
+#define WINDOW_HEIGHT               470
+#else
 #define WINDOW_WIDTH                415
 #define WINDOW_HEIGHT               480
+#endif
 
 #define CHANGE_HILIGHT              0
 #define CHANGE_HTC                  1
@@ -36,7 +41,7 @@
 
 static const TCHAR *g_pszWindowClassName = TEXT("HiCC MainWindow");
 
-static WCHAR g_szWindowTitle[WINDOW_TITLE_BUFFER_SZ];
+static TCHAR g_szWindowTitle[WINDOW_TITLE_BUFFER_SZ];
 
 static HWND g_hMainWindow = NULL;
 
@@ -339,7 +344,7 @@ static LRESULT CALLBACK MainWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
 static HWND MainWindow_Create(HINSTANCE hInstance)
 {
     WNDCLASS wndClass;
-    DWORD dwStyle = WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_SIZEBOX;
+    DWORD dwStyle = WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
     DWORD dwExStyle = WS_EX_APPWINDOW;
     HWND hWnd = NULL;
 

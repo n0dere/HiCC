@@ -20,26 +20,27 @@ if (NOT WIN32)
     message(FATAL_ERROR "Only Microsoft Windows")
 endif ()
 
-add_executable (HiCC WIN32)
+add_executable(HiCC WIN32)
 
-target_sources (HiCC PRIVATE SRC/bmutils.cpp SRC/clrkmeans.c SRC/clrregistry.c
-                             SRC/controls.c SRC/dlgabout.c SRC/resource.rc
-                             SRC/wallpaper.c SRC/wndmain.c)
+target_sources(HiCC PRIVATE SRC/bmutils.cpp SRC/clrkmeans.c SRC/clrregistry.c
+                            SRC/controls.c SRC/dlgabout.c SRC/resource.rc
+                            SRC/wallpaper.c SRC/wndmain.c)
 
-target_link_libraries (HiCC PRIVATE gdiplus msimg32 uxtheme comctl32 shlwapi)
+target_link_libraries(HiCC PRIVATE gdiplus msimg32 uxtheme comctl32 shlwapi)
 
-target_compile_definitions (HiCC PRIVATE _UNICODE UNICODE)
+target_compile_definitions(HiCC PRIVATE _UNICODE UNICODE)
 
-set_target_properties (HiCC PROPERTIES WIN32_EXECUTABLE TRUE)
+set_target_properties(HiCC PROPERTIES WIN32_EXECUTABLE TRUE)
 
 if (MINGW)
-    target_compile_options (HiCC PRIVATE -municode)
-    target_link_options (HiCC PRIVATE -municode)
+    target_compile_options(HiCC PRIVATE -municode)
+    target_link_options(HiCC PRIVATE -municode)
+    target_link_options(HiCC PRIVATE -static-libgcc -static-libstdc++ -static)
 endif ()
 
 if (MSVC)
     target_compile_definitions(HiCC PRIVATE _CRT_SECURE_NO_WARNINGS)
-    target_link_options (HiCC PRIVATE /MANIFEST:NO)
+    target_link_options(HiCC PRIVATE /MANIFEST:NO)
 endif ()
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8) # 64 bits
