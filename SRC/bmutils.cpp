@@ -17,8 +17,6 @@
 
 #include "bmutils.h"
 
-#include <tchar.h>
-#include <math.h>
 #include <gdiplus.h>
 
 HBITMAP HBITMAP_FromFile(LPCTSTR pszPath)
@@ -41,7 +39,7 @@ HBITMAP HBITMAP_FromFile(LPCTSTR pszPath)
     gdiBitmap = Gdiplus::Bitmap::FromFile(pszPath, FALSE);
 #else
     WCHAR szPathWide[MAX_PATH] = { 0 };
-    MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, pszPath, -1, szPathWide, 0);
+    MultiByteToWideChar(CP_UTF8, 0, pszPath, -1, szPathWide, MAX_PATH);
     gdiBitmap = Gdiplus::Bitmap::FromFile(szPathWide, FALSE);
 #endif
 

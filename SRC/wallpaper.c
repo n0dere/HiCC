@@ -17,7 +17,6 @@
 
 #include "wallpaper.h"
 
-#include <tchar.h>
 #include <Shlwapi.h>
 #include <ShlObj.h>
 

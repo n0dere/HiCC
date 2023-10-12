@@ -36,9 +36,9 @@ LPTSTR ConvertColorToStringRGB(COLORREF crColor)
     LPTSTR pszBuffer = HeapAlloc(GetProcessHeap(), 0, cbBufSize);
 
     if (pszBuffer != NULL) {
-        _stprintf_s(pszBuffer, STRING_RGB_SZ, TEXT("%u %u %u"),
-                    GetRValue(crColor), GetGValue(crColor),
-                    GetBValue(crColor));
+        _sntprintf(pszBuffer, STRING_RGB_SZ, TEXT("%u %u %u"),
+                   GetRValue(crColor), GetGValue(crColor),
+                   GetBValue(crColor));
     }
 
     return pszBuffer;
@@ -53,7 +53,8 @@ COLORREF ConvertStringRGBToColor(LPCTSTR pszStringRGB)
         return 0;
     }
 
-    _stscanf_s(pszStringRGB, TEXT("%u %u %u"), &uRed, &uGreen, &uBlue);
+    _sntscanf(pszStringRGB, STRING_RGB_SZ, TEXT("%u %u %u"),
+              &uRed, &uGreen, &uBlue);
 
     if (!RGB_IS_VALID(uRed, uGreen, uBlue)) {
         SetLastError(ERROR_INVALID_PARAMETER);

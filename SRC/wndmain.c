@@ -72,8 +72,8 @@ static VOID Edit_SetColorInfo(HWND hEdit, COLORREF crColor)
     uGreen = GetGValue(crColor);
     uBlue = GetBValue(crColor);
 
-    _stprintf_s(szText, 25, TEXT("#%02X%02X%02X [%u %u %u]"),
-                uRed, uGreen, uBlue, uRed, uGreen, uBlue);
+    _sntprintf(szText, 25, TEXT("#%02X%02X%02X [%u %u %u]"),
+               uRed, uGreen, uBlue, uRed, uGreen, uBlue);
 
     Edit_SetText(hEdit, szText);
 }
@@ -116,6 +116,7 @@ static VOID MainWindow_UpdateColors(PMAINWINDOW pMainWnd, COLORREF crHi,
     ColorBox_ChangeColor(GetDlgItem(pMainWnd->hWnd, IDC_CLRBOX_HTC), crHTC);
     Edit_SetColorInfo(GetDlgItem(pMainWnd->hWnd, IDC_EDIT_HI), crHi);
     Edit_SetColorInfo(GetDlgItem(pMainWnd->hWnd, IDC_EDIT_HTC), crHTC);
+
     EnableWindow(GetDlgItem(pMainWnd->hWnd, IDC_BUTTON_APPLY), bEnableApply);
 }
 
