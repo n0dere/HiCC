@@ -1,4 +1,3 @@
-<h1 align="center">Hilight Color Changer</h1>
 <img width="320" align="right" src="RESOURCES/screenshot.png">
 
 [![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)](https://github.com/n0dere/HiCC/search?l=c)
@@ -21,16 +20,20 @@ git clone https://github.com/n0dere/HiCC
 2. Select how to build the project:
 <details> 
 <summary align="center">MS Visual Studio Community (MSVC)</summary>
-<hr>
+
+---
 
 3. Open HiCC.sln using Visual Studio
 4. Build by clicking on the "Build" menu and selecting "Build Solution." 
 5. Open "(x64/)Release/HilightColorChanger_(x32/x64).exe" in the project directory
 
+---
+
 </details>
 <details> 
 <summary align="center">CMake (MSVC/MINGW) </summary>
-<hr>
+
+---
 
 3. Open the console in the project folder.
 4. Enter this into the console:
@@ -40,13 +43,21 @@ cmake --build ./build
 ```
 5. Open "HilightColorChanger_(x32/x64).exe" in the build directory
 
+---
+
 </details>
 
 ## Compatibility
-| OS          | Works? | Note                   |
-|-------------|:------:|------------------------|
-| Windows 11  | ✅      | 10.0.22621.2428 (22H2) |
-| Windows 10  | ✅      | 10.0.19044.1826 (21H2) |
-| Windows 8.1 |        | Not tested             |
-| Windows 8   |        | Not tested             |
-| Windows 7   | ✅      | 6.1.7601               |
+| OS            | Works?             | Note                                                    |
+|---------------|:------------------:|---------------------------------------------------------|
+| Windows 11    | :heavy_check_mark: | 10.0.22621.2428 (22H2)                                  |
+| Windows 10    | :heavy_check_mark: | 10.0.19044.1826 (21H2)                                  |
+| Windows 8.1   | :grey_question:    | Not tested                                              |
+| Windows 8     | :grey_question:    | Not tested                                              |
+| Windows 7     | :heavy_check_mark: | 6.1.7601                                                |
+| Windows Vista | :grey_question:    | Not tested                                              |
+| Windows XP    | :x:                | "Entry point in ADVAPI32.DLL for RegGetValue not found" |
+
+---
+
+![Windows 7](RESOURCES/screenshot_win7.png)
