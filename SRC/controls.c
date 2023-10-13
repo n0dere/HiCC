@@ -49,6 +49,41 @@ static void DrawTransparentRectangle(HDC hDC, LPRECT rect, COLORREF color,
     DeleteDC(hMemDC);
 }
 
+/* HACK:
+ *
+ * MINGW windres does not support resource files in UTF-16LE format, so
+ * resource.rc had to be converted to UTF-8. And due to the fact that Windows
+ * applications do not support UTF-8 strings from this resource file,
+ * I had to write a custom LoadString :D
+ * 
+ */
+BOOL LoadStringUTF8(UINT uId, LPTSTR pszBuffer, DWORD dwMaxSize)
+{
+    CHAR *szTmpBuffer = NULL;
+
+    if (pszBuffer == NULL || dwMaxSize <= 0)
+        return FALSE;
+
+    szTmpBuffer = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+                            dwMaxSize * (sizeof *szTmpBuffer));
+
+    if (szTmpBuffer == NULL)
+        return FALSE;
+
+    if (LoadStringA(NULL, uId, szTmpBuffer, dwMaxSize) <= 0) {
+        HeapFree(GetProcessHeap(), 0, szTmpBuffer);
+        return FALSE;
+    }
+
+#if _UNICODE
+    MultiByteToWideChar(CP_UTF8, 0, szTmpBuffer, -1, pszBuffer, dwMaxSize);
+#else
+    strncpy(pszBuffer, szTmpBuffer, (size_t)dwMaxSize);
+#endif
+    
+    HeapFree(GetProcessHeap(), 0, szTmpBuffer);
+}
+
 typedef struct tagPREVIEW
 {
     HBITMAP             hBitmapBG;
@@ -370,7 +405,7 @@ VOID Palette_SetError(HWND hPalette, UINT uMsgId)
                            LOADSTRING_MAX_SZ * (sizeof * szName));
 
         if (szName != NULL)
-            LoadString(NULL, uMsgId, szName, LOADSTRING_MAX_SZ);
+            LoadStringUTF8(uMsgId, szName, LOADSTRING_MAX_SZ);
     }
 
     if (hPalette != NULL)
@@ -441,7 +476,7 @@ static HWND Window_Create(LPCTSTR pszClassName, DWORD dwStyleEx, DWORD dwStyle,
     TCHAR szName[LOADSTRING_MAX_SZ] = { 0 };
 
     if (uNameId != 0)
-        LoadString(NULL, uNameId, szName, ARRAYSIZE(szName));
+        LoadStringUTF8(uNameId, szName, LOADSTRING_MAX_SZ);
 
     return CreateWindowEx(dwStyleEx, pszClassName, szName, dwStyle, x, y,
                           nWidth, nHeight, hParent, (HMENU)(UINT_PTR)uId,

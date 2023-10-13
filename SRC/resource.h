@@ -29,6 +29,7 @@
 #define IDC_DLG_URL_GITHUB          112
 #define IDC_DLG_EDIT_LICENSE        113
 #define IDC_DLG_APPNAME             114
+#define IDC_DLG_OK                  115
 
 #define IDI_APPICON                 501
 #define IDD_ABOUTBOX                502
@@ -47,3 +48,4 @@
 #define IDS_WINDOW_TITLE            1012
 #define IDS_GITHUB_URL              1013
 #define IDS_GNU_GPL_V3              1014
+#define IDS_OK                      1015

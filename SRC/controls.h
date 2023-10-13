@@ -38,6 +38,8 @@
 
 #define XXM_COLORBOX_SET_COLOR          (WM_USER + 7)
 
+BOOL LoadStringUTF8(UINT uId, LPTSTR pszBuffer, DWORD dwMaxSize);
+
 HWND Preview_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
                     INT nHeight);
 

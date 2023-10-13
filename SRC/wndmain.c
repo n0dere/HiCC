@@ -371,8 +371,7 @@ INT WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     MSG msg;
 
-    LoadString(hInstance, IDS_WINDOW_TITLE, g_szWindowTitle,
-               WINDOW_TITLE_BUFFER_SZ);
+    LoadStringUTF8(IDS_WINDOW_TITLE, g_szWindowTitle, WINDOW_TITLE_BUFFER_SZ);
 
     if ((g_hMainWindow = MainWindow_Create(hInstance)) == NULL) {
         MainWindow_ShowErrorDialog(NULL);

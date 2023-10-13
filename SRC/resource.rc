@@ -49,6 +49,7 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of\r\n\
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\r\n\
 GNU General Public License for more details.\0\
                         "
+    IDS_OK,             "OK"
 END
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 283, 169
@@ -58,7 +59,7 @@ FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDI_APPICON, -1, 24, 13, 21, 20
     LTEXT           "", IDC_DLG_APPNAME, 53, 13, 114, 8, SS_NOPREFIX
-    DEFPUSHBUTTON   "ОК", IDOK, 219, 142, 50, 14, WS_GROUP
+    DEFPUSHBUTTON   "", IDC_DLG_OK, 219, 142, 50, 14, WS_GROUP
     GROUPBOX        "GNU GPL v3", -1, 14, 43, 255, 95, BS_CENTER
     CONTROL         "<a>https://github.com/n0dere/HiCC</a>", IDC_DLG_URL_GITHUB,
                     "SysLink", WS_TABSTOP, 53, 24, 193, 10

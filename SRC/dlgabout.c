@@ -20,16 +20,18 @@
 #include <CommCtrl.h>
 
 #include "resource.h"
+#include "controls.h"
 
 #define GNU_GPL_V3_BUFFER_SZ            512
 #define APPNAME_BUFFER_SZ               256
+#define OK_BUFFER_SZ                    64
 
 static VOID AboutBox_OnNotify(HWND hDlg, LPNMHDR lpNMHDR)
 {
     TCHAR szUrl[MAX_PATH];
 
     if (lpNMHDR->idFrom == IDC_DLG_URL_GITHUB) {
-        LoadString(NULL, IDS_GITHUB_URL, szUrl, MAX_PATH);
+        LoadStringUTF8(IDS_GITHUB_URL, szUrl, MAX_PATH);
 
         if (lpNMHDR->code == NM_CLICK)
             ShellExecute(hDlg, 0, szUrl, 0, 0, SW_SHOW);
@@ -40,10 +42,13 @@ static BOOL AboutBox_OnInit(HWND hDlg)
 {
     TCHAR szLicense[GNU_GPL_V3_BUFFER_SZ];
     TCHAR szName[APPNAME_BUFFER_SZ];
+    TCHAR szOk[OK_BUFFER_SZ];
 
-    LoadString(NULL, IDS_GNU_GPL_V3, szLicense, GNU_GPL_V3_BUFFER_SZ);
-    LoadString(NULL, IDS_WINDOW_TITLE, szName, APPNAME_BUFFER_SZ);
+    LoadStringUTF8(IDS_GNU_GPL_V3, szLicense, GNU_GPL_V3_BUFFER_SZ);
+    LoadStringUTF8(IDS_WINDOW_TITLE, szName, APPNAME_BUFFER_SZ);
+    LoadStringUTF8(IDS_OK, szOk, OK_BUFFER_SZ);
 
+    Button_SetText(GetDlgItem(hDlg, IDC_DLG_OK), szOk);
     Edit_SetText(GetDlgItem(hDlg, IDC_DLG_EDIT_LICENSE), szLicense);
     Static_SetText(GetDlgItem(hDlg, IDC_DLG_APPNAME), szName);
 
@@ -58,9 +63,12 @@ INT_PTR CALLBACK AboutBox_Proc(HWND hDlg, UINT uMsg, WPARAM wParam,
             return (INT_PTR)AboutBox_OnInit(hDlg);
 
         case WM_COMMAND:
-            if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL) {
-                EndDialog(hDlg, LOWORD(wParam));
-                return (INT_PTR)TRUE;
+            switch (LOWORD(wParam)) {
+                case IDC_DLG_OK:
+                case IDCANCEL:
+                case IDOK:
+                    EndDialog(hDlg, LOWORD(wParam));
+                    return (INT_PTR)TRUE;
             }
             break;
 
