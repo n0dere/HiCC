@@ -82,6 +82,7 @@ BOOL LoadStringUTF8(UINT uId, LPTSTR pszBuffer, DWORD dwMaxSize)
 #endif
     
     HeapFree(GetProcessHeap(), 0, szTmpBuffer);
+    return TRUE;
 }
 
 typedef struct tagPREVIEW
