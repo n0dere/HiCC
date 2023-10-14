@@ -15,6 +15,11 @@
     along with HiCC.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include <Windows.h>
+
+#define VER_APPVERSION              1,1,0,0
+#define VER_APPVERSION_STR          "1.1\0"
+
 #define IDC_BUTTON_RESET            101
 #define IDC_BUTTON_CANCEL           102
 #define IDC_BUTTON_APPLY            103

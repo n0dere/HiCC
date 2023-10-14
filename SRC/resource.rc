@@ -17,25 +17,23 @@
 
 #include "resource.h"
 
-#include "Windows.h"
-
-IDI_APPICON ICON DISCARDABLE	"../RESOURCES/icon.ico"
+IDI_APPICON ICON DISCARDABLE    "../RESOURCES/icon.ico"
 
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "hicc.manifest"
 
 STRINGTABLE
 BEGIN
-	IDS_RESET,			"Reset to default"
-	IDS_CANCEL,			"Cancel"
-	IDS_APPLY,			"Apply"
-	IDS_ABOUT,			"?"
-	IDS_HILIGHT,		"Hilight"
-	IDS_HTC,			"HotTrackingColor"
-	IDS_CHANGE,			"Change"
-	IDS_NO_WALLPAPER,	"No wallpaper"
-	IDS_PREVIEW,		"Preview"
-	IDS_DESC_HI,		"[BORDER] Color to highlight active controls and text."
-	IDS_DESC_HTC,		"[BACKGROUND] Color for a hyperlink or hot-tracked item."
+    IDS_RESET,          "Reset to default"
+    IDS_CANCEL,         "Cancel"
+    IDS_APPLY,          "Apply"
+    IDS_ABOUT,          "?"
+    IDS_HILIGHT,        "Hilight"
+    IDS_HTC,            "HotTrackingColor"
+    IDS_CHANGE,         "Change"
+    IDS_NO_WALLPAPER,   "No wallpaper"
+    IDS_PREVIEW,        "Preview"
+    IDS_DESC_HI,        "[BORDER] Color to highlight active controls and text."
+    IDS_DESC_HTC,       "[BACKGROUND] Color for a hyperlink or hot-tracked item."
     IDS_WINDOW_TITLE,   "Hilight Color Changer"
     IDS_GITHUB_URL,     "https://github.com/n0dere/HiCC"
     IDS_GNU_GPL_V3,     "\
@@ -65,5 +63,29 @@ BEGIN
                     "SysLink", WS_TABSTOP, 53, 24, 193, 10
     EDITTEXT        IDC_DLG_EDIT_LICENSE, 21, 57, 241, 73,
                     ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,
-					WS_EX_LEFTSCROLLBAR
+                    WS_EX_LEFTSCROLLBAR
+    LTEXT           VER_APPVERSION_STR, -1, 230, 13, 30, 8, SS_RIGHT
+END
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION         VER_APPVERSION
+PRODUCTVERSION      VER_APPVERSION
+FILETYPE            VFT_APP
+FILEFLAGSMASK       VS_FFI_FILEFLAGSMASK
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "ProductName", "Hilight Color Changer\0"
+            VALUE "FileDescription", "Hilight Color Changer\0"
+            VALUE "FileVersion", VER_APPVERSION_STR
+            VALUE "ProductVersion", VER_APPVERSION_STR
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", LANG_ENGLISH, SUBLANG_ENGLISH_US
+    END
 END
