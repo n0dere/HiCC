@@ -15,7 +15,7 @@
     along with HiCC.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "clrregistry.h"
+#include "registry.h"
 
 #include <tchar.h>
 
@@ -29,8 +29,9 @@
     (RGB_CMP_VALID(r) && RGB_CMP_VALID(g) && RGB_CMP_VALID(b))
 
 static const TCHAR* g_pszColorsRegistrySubKey = TEXT("Control Panel\\Colors");
+static const TCHAR* g_pszHiCCRegistrySubKey = TEXT("SOFTWARE\\HiCC");
 
-LPTSTR ConvertColorToStringRGB(COLORREF crColor)
+static LPTSTR ConvertColorToStringRGB(COLORREF crColor)
 {
     DWORD cbBufSize = STRING_RGB_SZ * sizeof(TCHAR);
     LPTSTR pszBuffer = HeapAlloc(GetProcessHeap(), 0, cbBufSize);
@@ -44,7 +45,7 @@ LPTSTR ConvertColorToStringRGB(COLORREF crColor)
     return pszBuffer;
 }
 
-COLORREF ConvertStringRGBToColor(LPCTSTR pszStringRGB)
+static COLORREF ConvertStringRGBToColor(LPCTSTR pszStringRGB)
 {
     UINT uRed = 0, uGreen = 0, uBlue = 0;
 
@@ -62,6 +63,41 @@ COLORREF ConvertStringRGBToColor(LPCTSTR pszStringRGB)
     }
 
     return RGB(uRed, uGreen, uBlue);
+}
+
+static DWORD RegistryGetDWORDValue(HKEY hKey, LPCTSTR pszSubKey,
+                                   LPCTSTR pszValueName)
+{
+    DWORD cbDataSize = sizeof(DWORD);
+    LONG lResult = ERROR_SUCCESS;
+    DWORD dwValue = 0;
+
+    if (hKey == NULL || pszSubKey == NULL || pszValueName == NULL) {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return 0;
+    }
+
+    lResult = RegGetValue(hKey, pszSubKey, pszValueName, RRF_RT_REG_DWORD,
+                          NULL, &dwValue, &cbDataSize);
+    
+    if (lResult != ERROR_SUCCESS)
+        return 0;
+    
+    return dwValue;
+}
+
+static LONG RegistrySetDWORDValue(HKEY hKey, LPCTSTR pszSubKey,
+                                  LPCTSTR pszValueName, DWORD dwValue)
+{
+    DWORD cbDataSize = sizeof(DWORD);
+
+    if (hKey == NULL || pszSubKey == NULL || pszValueName == NULL) {
+        SetLastError(ERROR_INVALID_PARAMETER);
+        return 0;
+    }
+
+    return RegSetKeyValue(hKey, pszSubKey, pszValueName, REG_DWORD,
+                          &dwValue, cbDataSize);
 }
 
 static LPTSTR RegistryGetStringValue(HKEY hKey, LPCTSTR pszSubKey,
@@ -119,6 +155,18 @@ static LONG RegistrySetStringValue(HKEY hKey, LPCTSTR pszSubKey,
                           (LPCVOID)pszValue, cbValueSize);
 }
 
+LONG HiCCRegistrySetBOOL(LPCTSTR pszValueName, BOOL bValue)
+{
+    return RegistrySetDWORDValue(HKEY_CURRENT_USER, g_pszHiCCRegistrySubKey,
+                                 pszValueName, (DWORD)bValue);
+}
+
+BOOL HiCCRegistryGetBOOL(LPCTSTR pszValueName)
+{
+    return RegistryGetDWORDValue(HKEY_CURRENT_USER, g_pszHiCCRegistrySubKey,
+                                 pszValueName);
+}
+
 LONG ColorsRegistrySet(LPCTSTR pszValueName, COLORREF crValue)
 {
     LPTSTR pszColorValue = NULL;
@@ -159,18 +207,14 @@ COLORREF ColorsRegistryGet(LPCTSTR pszValueName)
     return crResult;
 }
 
-LONG ColorsRegistryResetToDefaults(VOID)
+LONG ColorsRegistryResetToDefaultAll(VOID)
 {
-    LPCTSTR pszName = NULL;
-    COLORREF crDefault = 0;
     LONG lResult = ERROR_SUCCESS;
     SIZE_T i;
 
     for (i = 0; i < SYSTEM_COLORS_COUNT; i++) {
-        pszName = g_v_SystemColors[i].pszValueName;
-        crDefault = g_v_SystemColors[i].crDefault;
-
-        lResult = ColorsRegistrySet(pszName, crDefault);
+        lResult = ColorsRegistrySet(g_v_SystemColors[i].pszValueName,
+                                    g_v_SystemColors[i].crDefault);
         
         if (lResult != ERROR_SUCCESS)
             break;
@@ -179,16 +223,18 @@ LONG ColorsRegistryResetToDefaults(VOID)
     return lResult;
 }
 
-BOOL ColorsRegistryUpdateSystem(VOID)
+LONG ColorsRegistryResetToDefault(INT nColorId)
 {
-    INT aElements[SYSTEM_COLORS_COUNT];
-    COLORREF aColors[SYSTEM_COLORS_COUNT];
     SIZE_T i;
 
     for (i = 0; i < SYSTEM_COLORS_COUNT; i++) {
-        aElements[i] = g_v_SystemColors[i].nId;
-        aColors[i] = ColorsRegistryGet(g_v_SystemColors[i].pszValueName);
+        if (g_v_SystemColors[i].nId == nColorId) {
+            return ColorsRegistrySet(g_v_SystemColors[i].pszValueName,
+                                     g_v_SystemColors[i].crDefault);
+        }
     }
 
-    return SetSysColors(SYSTEM_COLORS_COUNT, aElements, aColors);
+    SetLastError(ERROR_NOT_FOUND);
+
+    return ERROR_NOT_FOUND;
 }

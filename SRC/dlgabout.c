@@ -21,10 +21,12 @@
 
 #include "resource.h"
 #include "controls.h"
+#include "registry.h"
 
 #define GNU_GPL_V3_BUFFER_SZ            512
 #define APPNAME_BUFFER_SZ               256
 #define OK_BUFFER_SZ                    64
+#define OLD_BEH_BUFFER_SZ               128
 
 static VOID AboutBox_OnNotify(HWND hDlg, LPNMHDR lpNMHDR)
 {
@@ -43,21 +45,34 @@ static BOOL AboutBox_OnInit(HWND hDlg)
     TCHAR szLicense[GNU_GPL_V3_BUFFER_SZ];
     TCHAR szName[APPNAME_BUFFER_SZ];
     TCHAR szOk[OK_BUFFER_SZ];
+    TCHAR szOldBeh[OLD_BEH_BUFFER_SZ];
 
     LoadStringUTF8(IDS_GNU_GPL_V3, szLicense, GNU_GPL_V3_BUFFER_SZ);
     LoadStringUTF8(IDS_WINDOW_TITLE, szName, APPNAME_BUFFER_SZ);
     LoadStringUTF8(IDS_OK, szOk, OK_BUFFER_SZ);
+    LoadStringUTF8(IDS_OLD_BEH, szOldBeh, OLD_BEH_BUFFER_SZ);
 
     Button_SetText(GetDlgItem(hDlg, IDC_DLG_OK), szOk);
     Edit_SetText(GetDlgItem(hDlg, IDC_DLG_EDIT_LICENSE), szLicense);
     Static_SetText(GetDlgItem(hDlg, IDC_DLG_APPNAME), szName);
+    SetWindowText(GetDlgItem(hDlg, IDC_DLG_CHCKBOX_OLD_BEH), szOldBeh);
+
+    if (HiCCRegistryGetResetAll() == TRUE)
+        CheckDlgButton(hDlg, IDC_DLG_CHCKBOX_OLD_BEH, BST_CHECKED);
 
     return TRUE;
+}
+
+static BOOL OldBehaviour_OnCheck(HWND hDlg, BOOL bNewState)
+{
+    return HiCCRegistrySetResetAll(bNewState) == ERROR_SUCCESS;
 }
 
 INT_PTR CALLBACK AboutBox_Proc(HWND hDlg, UINT uMsg, WPARAM wParam,
                                LPARAM lParam)
 {
+    BOOL bChecked = FALSE;
+
     switch (uMsg) {
         case WM_INITDIALOG:
             return (INT_PTR)AboutBox_OnInit(hDlg);
@@ -67,8 +82,19 @@ INT_PTR CALLBACK AboutBox_Proc(HWND hDlg, UINT uMsg, WPARAM wParam,
                 case IDC_DLG_OK:
                 case IDCANCEL:
                 case IDOK:
-                    EndDialog(hDlg, LOWORD(wParam));
-                    return (INT_PTR)TRUE;
+                    return (INT_PTR)EndDialog(hDlg, LOWORD(wParam));
+                
+                case IDC_DLG_CHCKBOX_OLD_BEH:
+                    bChecked = IsDlgButtonChecked(hDlg, LOWORD(wParam));
+
+                    if (bChecked == TRUE) {
+                        CheckDlgButton(hDlg, LOWORD(wParam), BST_UNCHECKED);
+                        return (INT_PTR)OldBehaviour_OnCheck(hDlg, FALSE);
+                    }
+                    else {
+                        CheckDlgButton(hDlg, LOWORD(wParam), BST_CHECKED);
+                        return (INT_PTR)OldBehaviour_OnCheck(hDlg, TRUE);
+                    }
             }
             break;
 

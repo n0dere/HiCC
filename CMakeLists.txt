@@ -22,7 +22,7 @@ endif ()
 
 add_executable(HiCC WIN32)
 
-target_sources(HiCC PRIVATE SRC/bmutils.cpp SRC/clrkmeans.c SRC/clrregistry.c
+target_sources(HiCC PRIVATE SRC/bmutils.cpp SRC/clrkmeans.c SRC/registry.c
                             SRC/controls.c SRC/dlgabout.c SRC/resource.rc
                             SRC/wallpaper.c SRC/wndmain.c)
 

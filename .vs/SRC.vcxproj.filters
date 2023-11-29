@@ -18,7 +18,7 @@
     <ClCompile Include="..\SRC\bmutils.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="..\SRC\clrregistry.c">
+    <ClCompile Include="..\SRC\registry.c">
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="..\SRC\wallpaper.c">
@@ -41,7 +41,7 @@
     <ClInclude Include="..\SRC\bmutils.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\SRC\clrregistry.h">
+    <ClInclude Include="..\SRC\registry.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\SRC\wallpaper.h">

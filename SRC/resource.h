@@ -35,6 +35,7 @@
 #define IDC_DLG_EDIT_LICENSE        113
 #define IDC_DLG_APPNAME             114
 #define IDC_DLG_OK                  115
+#define IDC_DLG_CHCKBOX_OLD_BEH     116
 
 #define IDI_APPICON                 501
 #define IDD_ABOUTBOX                502
@@ -54,3 +55,4 @@
 #define IDS_GITHUB_URL              1013
 #define IDS_GNU_GPL_V3              1014
 #define IDS_OK                      1015
+#define IDS_OLD_BEH                 1016

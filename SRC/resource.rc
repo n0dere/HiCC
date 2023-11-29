@@ -48,6 +48,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\r\n\
 GNU General Public License for more details.\0\
                         "
     IDS_OK,             "OK"
+    IDS_OLD_BEH,        "Old ""Reset to default"" button behavior"
 END
 
 IDD_ABOUTBOX DIALOGEX 0, 0, 283, 169
@@ -65,6 +66,7 @@ BEGIN
                     ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,
                     WS_EX_LEFTSCROLLBAR
     LTEXT           VER_APPVERSION_STR, -1, 230, 13, 30, 8, SS_RIGHT
+    CHECKBOX        "", IDC_DLG_CHCKBOX_OLD_BEH, 24, 145, 185, 8
 END
 
 VS_VERSION_INFO VERSIONINFO

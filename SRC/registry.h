@@ -32,12 +32,22 @@
 #define ColorsRegistryGetHTC()									\
     ColorsRegistryGet(TEXT("HotTrackingColor"))
 
+#define HiCCRegistrySetResetAll(val)                            \
+    HiCCRegistrySetBOOL(TEXT("ResetAll"), (val))
+
+#define HiCCRegistryGetResetAll()                               \
+    HiCCRegistryGetBOOL(TEXT("ResetAll"))
+
+LONG HiCCRegistrySetBOOL(LPCTSTR pszValueName, BOOL bValue);
+
+BOOL HiCCRegistryGetBOOL(LPCTSTR pszValueName);
+
 LONG ColorsRegistrySet(LPCTSTR pszValueName, COLORREF crValue);
 
 COLORREF ColorsRegistryGet(LPCTSTR pszValueName);
 
-LONG ColorsRegistryResetToDefaults(VOID);
+LONG ColorsRegistryResetToDefaultAll(VOID);
 
-BOOL ColorsRegistryUpdateSystem(VOID);
+LONG ColorsRegistryResetToDefault(INT nColorId);
 
 #endif /* _CLRREGISTRY_H_ */

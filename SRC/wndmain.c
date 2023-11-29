@@ -18,11 +18,12 @@
 #include <Windows.h>
 #include <tchar.h>
 
-#include "clrregistry.h"
+#include "registry.h"
 #include "wallpaper.h"
 #include "clrkmeans.h"
 #include "resource.h"
 #include "controls.h"
+#include "syscolors.h"
 
 #define DW_PALETTE_K                7
 
@@ -107,11 +108,11 @@ static BOOL MainWindow_ColorSelect(PMAINWINDOW pMainWnd, LPCOLORREF lpcrSel)
     return bResult;
 }
 
-static VOID MainWindow_UpdateColors(PMAINWINDOW pMainWnd, COLORREF crHi,
+static BOOL MainWindow_UpdateColors(PMAINWINDOW pMainWnd, COLORREF crHi,
                                     COLORREF crHTC, BOOL bEnableApply)
 {
     if (pMainWnd == NULL)
-        return;
+        return FALSE;
 
     pMainWnd->crHilight = crHi;
     pMainWnd->crHotTrackingColor = crHTC;
@@ -123,20 +124,43 @@ static VOID MainWindow_UpdateColors(PMAINWINDOW pMainWnd, COLORREF crHi,
     Edit_SetColorInfo(GetDlgItem(pMainWnd->hWnd, IDC_EDIT_HTC), crHTC);
 
     EnableWindow(GetDlgItem(pMainWnd->hWnd, IDC_BUTTON_APPLY), bEnableApply);
+
+    return TRUE;
+}
+
+static BOOL UpdateAllSystemColors(VOID)
+{
+    INT aElements[SYSTEM_COLORS_COUNT];
+    COLORREF aColors[SYSTEM_COLORS_COUNT];
+    SIZE_T i;
+
+    for (i = 0; i < SYSTEM_COLORS_COUNT; i++) {
+        aElements[i] = g_v_SystemColors[i].nId;
+        aColors[i] = ColorsRegistryGet(g_v_SystemColors[i].pszValueName);
+    }
+
+    return SetSysColors(SYSTEM_COLORS_COUNT, aElements, aColors);
 }
 
 static BOOL ResetButton_OnClick(PMAINWINDOW pMainWnd)
 {
-    if (ColorsRegistryResetToDefaults() != ERROR_SUCCESS)
+    if (HiCCRegistryGetResetAll() == TRUE) {
+        if (ColorsRegistryResetToDefaultAll() != ERROR_SUCCESS)
+            return FALSE;
+    }
+    else {
+        if (ColorsRegistryResetToDefault(COLOR_HIGHLIGHT) != ERROR_SUCCESS)
+            return FALSE;
+        
+        if (ColorsRegistryResetToDefault(COLOR_HOTLIGHT) != ERROR_SUCCESS)
+            return FALSE;
+    }
+
+    if (UpdateAllSystemColors() != TRUE)
         return FALSE;
 
-    if (ColorsRegistryUpdateSystem() != TRUE)
-        return FALSE;
-
-    MainWindow_UpdateColors(pMainWnd, ColorsRegistryGetHilight(),
-                            ColorsRegistryGetHTC(), FALSE);
-    
-    return TRUE;
+    return MainWindow_UpdateColors(pMainWnd, ColorsRegistryGetHilight(),
+                                   ColorsRegistryGetHTC(), FALSE);
 }
 
 static BOOL ApplyButton_OnClick(PMAINWINDOW pMainWnd)
@@ -147,12 +171,11 @@ static BOOL ApplyButton_OnClick(PMAINWINDOW pMainWnd)
     if (ColorsRegistrySetHilight(pMainWnd->crHilight) != ERROR_SUCCESS)
         return FALSE;
 
-    ColorsRegistryUpdateSystem();
+    if (UpdateAllSystemColors() != TRUE)
+        return FALSE;
 
-    MainWindow_UpdateColors(pMainWnd, pMainWnd->crHilight,
-                            pMainWnd->crHotTrackingColor, FALSE);
-
-    return TRUE;
+    return MainWindow_UpdateColors(pMainWnd, pMainWnd->crHilight,
+                                   pMainWnd->crHotTrackingColor, FALSE);
 }
 
 static BOOL Change_OnClick(PMAINWINDOW pMainWnd, UINT uFlag)
@@ -171,8 +194,7 @@ static BOOL Change_OnClick(PMAINWINDOW pMainWnd, UINT uFlag)
     if (MainWindow_ColorSelect(pMainWnd, lpcrToChange) == FALSE)
         return TRUE;
 
-    MainWindow_UpdateColors(pMainWnd, crHi, crHTC, TRUE);
-    return TRUE;
+    return MainWindow_UpdateColors(pMainWnd, crHi, crHTC, TRUE);
 }
 
 static VOID MainWindow_ShowErrorDialog(HWND hWnd)
@@ -255,14 +277,14 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     Edit_Create(hWnd, IDC_EDIT_HI, 48, 271, 160, 23);
     Edit_SetReadOnly(GetDlgItem(hWnd, IDC_EDIT_HI), TRUE);
     Button_Create(hWnd, IDC_BUTTON_CHANGE_HI, 305, 271, 80, 23, IDS_CHANGE);
-    Static_Create(hWnd, 15, 304, 250, 17, IDS_DESC_HI);
+    Static_Create(hWnd, 15, 304, 270, 17, IDS_DESC_HI);
 
     GroupBox_Create(hWnd, 7, 328, 385, 74, IDS_HTC);
     ColorBox_Create(hWnd, IDC_CLRBOX_HTC, 15, 347, 23, 23);
     Edit_Create(hWnd, IDC_EDIT_HTC, 48, 347, 160, 23);
     Edit_SetReadOnly(GetDlgItem(hWnd, IDC_EDIT_HTC), TRUE);
     Button_Create(hWnd, IDC_BUTTON_CHANGE_HTC, 305, 347, 80, 23, IDS_CHANGE);
-    Static_Create(hWnd, 15, 380, 250, 17, IDS_DESC_HTC);
+    Static_Create(hWnd, 15, 380, 270, 17, IDS_DESC_HTC);
 
     Button_Create(hWnd, IDC_BUTTON_RESET, 6, 411, 120, 23, IDS_RESET);
     Button_Create(hWnd, IDC_BUTTON_ABOUT, 198, 411, 23, 23, IDS_ABOUT);
@@ -272,11 +294,9 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_APPLY), FALSE);
 
     EnumChildWindows(hWnd, (WNDENUMPROC)SetFontCallback, 0);
-
-    MainWindow_UpdateColors(pMainWnd, ColorsRegistryGetHilight(),
-                            ColorsRegistryGetHTC(), FALSE);
     
-    return TRUE;
+    return MainWindow_UpdateColors(pMainWnd, ColorsRegistryGetHilight(),
+                                   ColorsRegistryGetHTC(), FALSE);
 }
 
 static VOID MainWindow_OnDestroy(PMAINWINDOW pMainWnd, HWND hWnd)

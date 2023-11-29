@@ -155,7 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\SRC\bmutils.cpp" />
-    <ClCompile Include="..\SRC\clrregistry.c" />
+    <ClCompile Include="..\SRC\registry.c" />
     <ClCompile Include="..\SRC\clrkmeans.c" />
     <ClCompile Include="..\SRC\controls.c" />
     <ClCompile Include="..\SRC\dlgabout.c" />
@@ -164,7 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\SRC\bmutils.h" />
-    <ClInclude Include="..\SRC\clrregistry.h" />
+    <ClInclude Include="..\SRC\registry.h" />
     <ClInclude Include="..\SRC\clrkmeans.h" />
     <ClInclude Include="..\SRC\controls.h" />
     <ClInclude Include="..\SRC\resource.h" />
