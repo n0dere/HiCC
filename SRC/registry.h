@@ -20,16 +20,16 @@
 
 #include <windows.h>
 
-#define ColorsRegistrySetHilight(clr)							\
+#define ColorsRegistrySetHilight(clr)                           \
     ColorsRegistrySet(TEXT("Hilight"), (clr))
 
-#define ColorsRegistrySetHTC(clr)								\
+#define ColorsRegistrySetHTC(clr)                               \
     ColorsRegistrySet(TEXT("HotTrackingColor"), (clr))
 
-#define ColorsRegistryGetHilight()								\
+#define ColorsRegistryGetHilight()                              \
     ColorsRegistryGet(TEXT("Hilight"))
 
-#define ColorsRegistryGetHTC()									\
+#define ColorsRegistryGetHTC()                                  \
     ColorsRegistryGet(TEXT("HotTrackingColor"))
 
 #define HiCCRegistrySetResetAll(val)                            \
