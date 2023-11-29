@@ -167,6 +167,22 @@ BOOL HiCCRegistryGetBOOL(LPCTSTR pszValueName)
                                  pszValueName);
 }
 
+LONG HiCCRegistrySaveColors(COLORREF aColors[16])
+{
+    return RegSetKeyValue(HKEY_CURRENT_USER, g_pszHiCCRegistrySubKey,
+                          TEXT("Colors"), REG_BINARY, (BYTE*)aColors,
+                          16 * sizeof(COLORREF));
+}
+
+LONG HiCCRegistryGetColors(COLORREF aOutColors[16])
+{
+    DWORD cbColorsSize = 16 * sizeof(COLORREF);
+
+    return RegGetValue(HKEY_CURRENT_USER, g_pszHiCCRegistrySubKey,
+                       TEXT("Colors"), RRF_RT_REG_BINARY, NULL,
+                       (PVOID)aOutColors, &cbColorsSize);
+}
+
 LONG ColorsRegistrySet(LPCTSTR pszValueName, COLORREF crValue)
 {
     LPTSTR pszColorValue = NULL;

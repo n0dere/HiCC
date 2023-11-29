@@ -42,6 +42,10 @@ LONG HiCCRegistrySetBOOL(LPCTSTR pszValueName, BOOL bValue);
 
 BOOL HiCCRegistryGetBOOL(LPCTSTR pszValueName);
 
+LONG HiCCRegistrySaveColors(COLORREF aColors[16]);
+
+LONG HiCCRegistryGetColors(COLORREF aOutColors[16]);
+
 LONG ColorsRegistrySet(LPCTSTR pszValueName, COLORREF crValue);
 
 COLORREF ColorsRegistryGet(LPCTSTR pszValueName);

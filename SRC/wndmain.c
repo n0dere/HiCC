@@ -294,6 +294,8 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_APPLY), FALSE);
 
     EnumChildWindows(hWnd, (WNDENUMPROC)SetFontCallback, 0);
+
+    HiCCRegistryGetColors(pMainWnd->acrCustom);
     
     return MainWindow_UpdateColors(pMainWnd, ColorsRegistryGetHilight(),
                                    ColorsRegistryGetHTC(), FALSE);
@@ -301,6 +303,7 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
 
 static VOID MainWindow_OnDestroy(PMAINWINDOW pMainWnd, HWND hWnd)
 {
+    HiCCRegistrySaveColors(pMainWnd->acrCustom);
     KM_FreePalette(pMainWnd->pkmPalette);
     DeleteObject(pMainWnd->hbmWallpaper);
     Controls_UnregisterAllClasses();
