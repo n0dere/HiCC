@@ -217,9 +217,9 @@ static VOID MainWindow_ShowErrorDialog(HWND hWnd)
     }
 }
 
-static BOOL MainWindow_OnCommand(PMAINWINDOW pMainWnd, DWORD dwId)
+static BOOL MainWindow_OnCommand(PMAINWINDOW pMainWnd, WORD wId)
 {
-    switch (dwId) {
+    switch (wId) {
         case IDC_BUTTON_CHANGE_HI:
             return Change_OnClick(pMainWnd, CHANGE_HILIGHT);
 

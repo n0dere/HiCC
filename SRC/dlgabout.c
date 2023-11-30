@@ -46,6 +46,8 @@ static BOOL AboutBox_OnInit(HWND hDlg)
     TCHAR szName[APPNAME_BUFFER_SZ];
     TCHAR szOk[OK_BUFFER_SZ];
     TCHAR szOldBeh[OLD_BEH_BUFFER_SZ];
+    RECT rcParent, rcDlg;
+    INT x, y;
 
     LoadStringUTF8(IDS_GNU_GPL_V3, szLicense, GNU_GPL_V3_BUFFER_SZ);
     LoadStringUTF8(IDS_WINDOW_TITLE, szName, APPNAME_BUFFER_SZ);
@@ -60,6 +62,14 @@ static BOOL AboutBox_OnInit(HWND hDlg)
     if (HiCCRegistryGetResetAll() == TRUE)
         CheckDlgButton(hDlg, IDC_DLG_CHCKBOX_OLD_BEH, BST_CHECKED);
 
+    GetWindowRect(GetParent(hDlg), &rcParent);
+    GetWindowRect(hDlg, &rcDlg);
+
+    x = rcParent.left + ((rcParent.right - rcDlg.right) / 2);
+    y = rcParent.top + ((rcParent.bottom - rcDlg.bottom) / 2);
+
+    SetWindowPos(hDlg, NULL, x, y, 0, 0, SWP_NOSIZE);
+
     return TRUE;
 }
 
@@ -68,35 +78,36 @@ static BOOL OldBehaviour_OnCheck(HWND hDlg, BOOL bNewState)
     return HiCCRegistrySetResetAll(bNewState) == ERROR_SUCCESS;
 }
 
+static BOOL AboutBox_OnCommand(HWND hDlg, WORD wId)
+{
+    BOOL bIsChecked = FALSE;
+    UINT uCheck = BST_UNCHECKED;
+    
+    switch (wId) {
+        case IDC_DLG_OK:
+        case IDCANCEL:
+        case IDOK:
+            return (INT_PTR)EndDialog(hDlg, wId);
+        
+        case IDC_DLG_CHCKBOX_OLD_BEH:
+            bIsChecked = IsDlgButtonChecked(hDlg, wId);
+            uCheck = (!bIsChecked) ? BST_CHECKED : BST_UNCHECKED;
+            CheckDlgButton(hDlg, wId, uCheck);
+            return (INT_PTR)OldBehaviour_OnCheck(hDlg, !bIsChecked);
+    }
+
+    return FALSE;
+}
+
 INT_PTR CALLBACK AboutBox_Proc(HWND hDlg, UINT uMsg, WPARAM wParam,
                                LPARAM lParam)
 {
-    BOOL bChecked = FALSE;
-
     switch (uMsg) {
         case WM_INITDIALOG:
             return (INT_PTR)AboutBox_OnInit(hDlg);
 
         case WM_COMMAND:
-            switch (LOWORD(wParam)) {
-                case IDC_DLG_OK:
-                case IDCANCEL:
-                case IDOK:
-                    return (INT_PTR)EndDialog(hDlg, LOWORD(wParam));
-                
-                case IDC_DLG_CHCKBOX_OLD_BEH:
-                    bChecked = IsDlgButtonChecked(hDlg, LOWORD(wParam));
-
-                    if (bChecked == TRUE) {
-                        CheckDlgButton(hDlg, LOWORD(wParam), BST_UNCHECKED);
-                        return (INT_PTR)OldBehaviour_OnCheck(hDlg, FALSE);
-                    }
-                    else {
-                        CheckDlgButton(hDlg, LOWORD(wParam), BST_CHECKED);
-                        return (INT_PTR)OldBehaviour_OnCheck(hDlg, TRUE);
-                    }
-            }
-            break;
+            return (INT_PTR)AboutBox_OnCommand(hDlg, LOWORD(wParam));
 
         case WM_NOTIFY:
             AboutBox_OnNotify(hDlg, (LPNMHDR)lParam);
