@@ -1,4 +1,4 @@
-<img width="320" align="right" src="RESOURCES/screenshot.png">
+<img width="320" align="right" src="README-SRC/screenshot.png">
 
 [![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)](https://github.com/n0dere/HiCC/search?l=c)
 [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://www.microsoft.com/en-us/windows)
@@ -48,16 +48,16 @@ cmake --build ./build
 </details>
 
 ## Compatibility
-| OS            | Works?             | Note                                                    |
-|---------------|:------------------:|---------------------------------------------------------|
-| Windows 11    | :heavy_check_mark: | 10.0.22621.2428 (22H2)                                  |
-| Windows 10    | :heavy_check_mark: | 10.0.19044.1826 (21H2)                                  |
-| Windows 8.1   | :grey_question:    | Not tested                                              |
-| Windows 8     | :grey_question:    | Not tested                                              |
-| Windows 7     | :heavy_check_mark: | 6.1.7601                                                |
-| Windows Vista | :grey_question:    | Not tested                                              |
-| Windows XP    | :x:                | "Entry point in ADVAPI32.DLL for RegGetValue not found" |
+| OS            | Works?             | Note                   |
+|---------------|:------------------:|------------------------|
+| Windows 11    | :heavy_check_mark: | 10.0.22621.2428 (22H2) |
+| Windows 10    | :heavy_check_mark: | 10.0.19044.1826 (21H2) |
+| Windows 8.1   | :grey_question:    | Not tested             |
+| Windows 8     | :grey_question:    | Not tested             |
+| Windows 7     | :heavy_check_mark: | 6.1.7601               |
+| Windows Vista | :grey_question:    | Not tested             |
+| Windows XP    | :x:                | Just not supported     |
 
 ---
 
-![Windows 7](RESOURCES/screenshot_win7.png)
+![Windows 7](README-SRC/screenshot_win7.png)
