@@ -53,7 +53,7 @@
     <ClInclude Include="..\SRC\syscolors.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\SRC\resource.h">
+    <ClInclude Include="..\SRC\resources.h">
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="..\SRC\controls.h">
@@ -66,13 +66,13 @@
     </Manifest>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\SRC\resource.rc">
-      <Filter>Resources</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\RESOURCES\icon.ico">
+    <Image Include="..\SRC\icon.ico">
       <Filter>Resources</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\SRC\resources.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

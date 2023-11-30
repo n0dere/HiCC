@@ -17,7 +17,7 @@
 
 #include "controls.h"
 
-#include "resource.h"
+#include "resources.h"
 
 #define LOADSTRING_MAX_SZ           512
 

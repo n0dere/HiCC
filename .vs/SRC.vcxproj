@@ -167,7 +167,7 @@
     <ClInclude Include="..\SRC\registry.h" />
     <ClInclude Include="..\SRC\clrkmeans.h" />
     <ClInclude Include="..\SRC\controls.h" />
-    <ClInclude Include="..\SRC\resource.h" />
+    <ClInclude Include="..\SRC\resources.h" />
     <ClInclude Include="..\SRC\syscolors.h" />
     <ClInclude Include="..\SRC\wallpaper.h" />
   </ItemGroup>
@@ -175,10 +175,10 @@
     <Manifest Include="..\SRC\hicc.manifest" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\SRC\resource.rc" />
+    <Image Include="..\SRC\icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\RESOURCES\icon.ico" />
+    <ResourceCompile Include="..\SRC\resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

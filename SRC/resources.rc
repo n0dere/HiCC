@@ -15,9 +15,9 @@
     along with HiCC.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "resource.h"
+#include "resources.h"
 
-IDI_APPICON ICON DISCARDABLE    "../RESOURCES/icon.ico"
+IDI_APPICON ICON DISCARDABLE    "icon.ico"
 
 CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "hicc.manifest"
 

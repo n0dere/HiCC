@@ -19,7 +19,7 @@
 #include <windowsx.h>
 #include <CommCtrl.h>
 
-#include "resource.h"
+#include "resources.h"
 #include "controls.h"
 #include "registry.h"
 

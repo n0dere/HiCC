@@ -21,7 +21,7 @@
 #include "registry.h"
 #include "wallpaper.h"
 #include "clrkmeans.h"
-#include "resource.h"
+#include "resources.h"
 #include "controls.h"
 #include "syscolors.h"
 

@@ -23,7 +23,7 @@ endif ()
 add_executable(HiCC WIN32)
 
 target_sources(HiCC PRIVATE SRC/bmutils.cpp SRC/clrkmeans.c SRC/registry.c
-                            SRC/controls.c SRC/dlgabout.c SRC/resource.rc
+                            SRC/controls.c SRC/dlgabout.c SRC/resources.rc
                             SRC/wallpaper.c SRC/wndmain.c)
 
 target_link_libraries(HiCC PRIVATE gdiplus msimg32 uxtheme comctl32 shlwapi)
