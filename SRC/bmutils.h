@@ -26,6 +26,8 @@ extern "C" {
 
 HBITMAP HBITMAP_FromFile(LPCTSTR pszPath);
 
+HBITMAP HBITMAP_FromWindow(HWND hWnd);
+
 LPRGBQUAD HBITMAP_GetPixels(HBITMAP hBitmap, LPDWORD lpcPixelCount);
 
 HBITMAP HBITMAP_Resize(HBITMAP hBitmap, UINT uNewWidth, UINT uNewHeight);

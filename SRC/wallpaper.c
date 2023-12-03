@@ -55,14 +55,17 @@ static LPTSTR DesktopWallpaperGetPathCached(VOID)
 {
     DWORD cbPathSize = MAX_PATH * sizeof(TCHAR);
     LPTSTR pszPathBuffer = NULL;
+    HRESULT hRes;
 
     pszPathBuffer = (LPTSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
-        cbPathSize);
+                                      cbPathSize);
 
     if (pszPathBuffer == NULL)
         return NULL;
 
-    if (FAILED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, pszPathBuffer))) {
+    hRes = SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, pszPathBuffer);
+
+    if (FAILED(hRes)) {
         HeapFree(GetProcessHeap(), 0, (LPVOID)pszPathBuffer);
         return NULL;
     }
@@ -79,20 +82,47 @@ static LPTSTR DesktopWallpaperGetPathCached(VOID)
     return pszPathBuffer;
 }
 
+static BOOL CALLBACK FindWPELiveWp_Callback(HWND hWnd, LPARAM lParam)
+{
+    HWND *phWPELiveWallpaper = (HWND*)lParam;
+    HWND hFoundWnd = NULL;
+
+    hFoundWnd = FindWindowEx(hWnd, NULL, NULL, TEXT("WPELiveWallpaper"));
+
+    if (hFoundWnd != NULL) {
+        *phWPELiveWallpaper = hFoundWnd;
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+static HWND FindWPELiveWallpaperWindow(VOID)
+{
+    HWND hWPELiveWallpaper = NULL;
+    EnumWindows(FindWPELiveWp_Callback, (LPARAM)&hWPELiveWallpaper);
+    return hWPELiveWallpaper;
+}
+
 HBITMAP DesktopWallpaperGetHBITMAP(VOID)
 {
     HBITMAP hbmWallpaper = NULL;
-    LPTSTR pszWallpaperPath = DesktopWallpaperGetPathSPI();
+    LPTSTR pszWallpaperPath = NULL;
+    HWND hWallpaperEngineWnd = NULL;
 
-    if (pszWallpaperPath == NULL)
-        pszWallpaperPath = DesktopWallpaperGetPathCached();
+    if ((hWallpaperEngineWnd = FindWPELiveWallpaperWindow()) == NULL) {
+        pszWallpaperPath = DesktopWallpaperGetPathSPI();
 
-    if (pszWallpaperPath == NULL)
-        return NULL;
-
-    hbmWallpaper = HBITMAP_FromFile(pszWallpaperPath);
-
-    HeapFree(GetProcessHeap(), 0, pszWallpaperPath);
+        if (pszWallpaperPath == NULL)
+            pszWallpaperPath = DesktopWallpaperGetPathCached();
+        
+        if (pszWallpaperPath != NULL) {
+            hbmWallpaper = HBITMAP_FromFile(pszWallpaperPath);
+            HeapFree(GetProcessHeap(), 0, pszWallpaperPath);
+        }
+    }
+    else
+        return HBITMAP_FromWindow(hWallpaperEngineWnd);
 
     return hbmWallpaper;
 }

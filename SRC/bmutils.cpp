@@ -38,7 +38,7 @@ HBITMAP HBITMAP_FromFile(LPCTSTR pszPath)
 #if _UNICODE
     gdiBitmap = Gdiplus::Bitmap::FromFile(pszPath, FALSE);
 #else
-    WCHAR szPathWide[MAX_PATH] = { 0 };
+    WCHAR szPathWide[MAX_PATH] = {0};
     MultiByteToWideChar(CP_UTF8, 0, pszPath, -1, szPathWide, MAX_PATH);
     gdiBitmap = Gdiplus::Bitmap::FromFile(szPathWide, FALSE);
 #endif
@@ -49,6 +49,31 @@ HBITMAP HBITMAP_FromFile(LPCTSTR pszPath)
     }
 
     Gdiplus::GdiplusShutdown(gdiToken);
+    return hBitmap;
+}
+
+HBITMAP HBITMAP_FromWindow(HWND hWnd)
+{
+    INT iWidth, iHeight;
+    HDC hWindowDC, hMemDC;
+    HBITMAP hBitmap = NULL;
+    RECT rc;
+
+    hWindowDC = GetDC(hWnd);
+    hMemDC = CreateCompatibleDC(hWindowDC);
+    
+    GetClientRect(hWnd, &rc);
+    
+    iWidth = rc.right - rc.left;
+    iHeight = rc.bottom - rc.top;
+    
+    hBitmap = CreateCompatibleBitmap(hWindowDC, iWidth, iHeight);
+
+    SelectObject(hMemDC, hBitmap);
+    BitBlt(hMemDC, 0, 0, iWidth, iHeight, hWindowDC, 0, 0, SRCCOPY);
+    ReleaseDC(hWnd, hWindowDC);
+    DeleteDC(hMemDC);
+
     return hBitmap;
 }
 
