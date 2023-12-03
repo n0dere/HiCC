@@ -60,6 +60,8 @@ VOID ColorBox_ChangeColor(HWND hColorBox, COLORREF crColor);
 HWND Button_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
                    INT nHeight, UINT uNameId);
 
+
+
 HWND Static_Create(HWND hParent, INT x, INT y, INT nWidth, INT nHeight,
                    UINT uTextId);
 

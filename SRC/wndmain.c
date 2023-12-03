@@ -265,12 +265,12 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
 
     pMainWnd->hWndPreview = Preview_Create(hWnd, 0, 15, 26, 369, 191);
 
-    if (pMainWnd->hbmWallpaper == NULL)
-        Palette_SetError(GetDlgItem(hWnd, IDC_PALETTE), IDS_NO_WALLPAPER);
-
     Preview_UpdateBG(pMainWnd->hWndPreview, pMainWnd->hbmWallpaper);
 
     Palette_Create(hWnd, IDC_PALETTE, 15, 216, 369, 25, pMainWnd->pkmPalette);
+
+    if (pMainWnd->hbmWallpaper == NULL)
+        Palette_SetError(GetDlgItem(hWnd, IDC_PALETTE), IDS_NO_WALLPAPER);
 
     GroupBox_Create(hWnd, 7, 252, 385, 74, IDS_HILIGHT);
     ColorBox_Create(hWnd, IDC_CLRBOX_HI, 15, 271, 23, 23);
@@ -294,7 +294,7 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_APPLY), FALSE);
 
     EnumChildWindows(hWnd, (WNDENUMPROC)SetFontCallback, 0);
-
+    
     HiCCRegistryGetColors(pMainWnd->acrCustom);
     
     return MainWindow_UpdateColors(pMainWnd, ColorsRegistryGetHilight(),

@@ -341,6 +341,17 @@ static LRESULT CALLBACK Palette_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
             }
 
             break;
+        
+        case WM_SETCURSOR:
+            if (LOWORD(lParam) == HTCLIENT) {
+                if (pPalette->pKmPalette != NULL)
+                    SetCursor(LoadCursor(NULL, IDC_HAND));
+                else
+                    SetCursor(LoadCursor(NULL, IDC_ARROW));
+
+                return TRUE;
+            }
+            break;
 
         case XXM_PALETTE_ERROR_MSG:
             pPalette->pszErrorMsg = (LPTSTR)lParam;
@@ -401,7 +412,7 @@ VOID Palette_SetError(HWND hPalette, UINT uMsgId)
 {
     LPTSTR szName = NULL;
 
-    if (uMsgId != 0) {
+    if (hPalette != NULL && uMsgId != 0) {
         szName = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                            LOADSTRING_MAX_SZ * (sizeof * szName));
 
@@ -474,7 +485,7 @@ static HWND Window_Create(LPCTSTR pszClassName, DWORD dwStyleEx, DWORD dwStyle,
                           HWND hParent, UINT uId, INT x, INT y, INT nWidth,
                           INT nHeight, UINT uNameId)
 {
-    TCHAR szName[LOADSTRING_MAX_SZ] = { 0 };
+    TCHAR szName[LOADSTRING_MAX_SZ] = {0};
 
     if (uNameId != 0)
         LoadStringUTF8(uNameId, szName, LOADSTRING_MAX_SZ);
