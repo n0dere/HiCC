@@ -26,6 +26,7 @@
 #include "syscolors.h"
 #include "bmutils.h"
 #include "clrpicker.h"
+#include "wndcenter.h"
 
 #define DW_PALETTE_K                7
 
@@ -85,10 +86,21 @@ static BOOL CALLBACK SetFontCallback(HWND child, LPARAM lParam)
     return TRUE;
 }
 
+static UINT_PTR CALLBACK ColorSelect_Hook(HWND hDlg, UINT uMsg,
+                                          WPARAM wParam, LPARAM lParam)
+{
+    switch (uMsg) {
+        case WM_INITDIALOG:
+            MoveWindowToParentCenter(GetParent(hDlg), hDlg);
+            break;
+    }
+
+    return (UINT_PTR)FALSE;
+}
+
 static BOOL MainWindow_ColorSelect(PMAINWINDOW pMainWnd, LPCOLORREF lpcrSel)
 {
     CHOOSECOLOR cc;
-    BOOL bResult = FALSE;
 
     if (pMainWnd == NULL || lpcrSel == NULL)
         return FALSE;
@@ -98,15 +110,16 @@ static BOOL MainWindow_ColorSelect(PMAINWINDOW pMainWnd, LPCOLORREF lpcrSel)
     cc.lStructSize = sizeof cc;
     cc.hwndOwner = pMainWnd->hWnd;
     cc.lpCustColors = (LPDWORD)pMainWnd->acrCustom;
-    cc.Flags = CC_FULLOPEN | CC_RGBINIT;
+    cc.Flags = CC_FULLOPEN | CC_RGBINIT | CC_ENABLEHOOK;
     cc.rgbResult = *lpcrSel;
+    cc.lpfnHook = ColorSelect_Hook;
 
-    bResult = ChooseColor(&cc);
-
-    if (bResult == TRUE)
+    if (ChooseColor(&cc) == TRUE) {
         *lpcrSel = cc.rgbResult;
+        return TRUE;
+    }
 
-    return bResult;
+    return FALSE;
 }
 
 static BOOL MainWindow_UpdateColors(PMAINWINDOW pMainWnd, BOOL bEnableApply)
@@ -177,9 +190,6 @@ static BOOL ResetButton_OnClick(PMAINWINDOW pMainWnd)
 
 static BOOL ApplyButton_OnClick(PMAINWINDOW pMainWnd)
 {
-    if (pMainWnd == NULL)
-        return FALSE;
-    
     if (ColorsRegistrySetHTC(pMainWnd->crHotTrackingColor) != ERROR_SUCCESS)
         return FALSE;
 
@@ -197,16 +207,10 @@ static BOOL PickColor_OnClick(PMAINWINDOW pMainWnd, UINT uFlag)
     COLORREF crNew;
 
     if (ColorPicker_PickColorOnScreen(pMainWnd->hWnd, &crNew)) {
-
-        switch (uFlag) {
-            case CHANGE_HILIGHT:
-                pMainWnd->crHilight = crNew;
-                break;
-            
-            case CHANGE_HTC:
-                pMainWnd->crHotTrackingColor = crNew;
-                break;
-        }
+        if (uFlag == CHANGE_HILIGHT)
+            pMainWnd->crHilight = crNew;
+        else
+            pMainWnd->crHotTrackingColor = crNew;
 
         return MainWindow_UpdateColors(pMainWnd, TRUE);
     }
@@ -218,9 +222,6 @@ static BOOL Change_OnClick(PMAINWINDOW pMainWnd, UINT uFlag)
 {
     LPCOLORREF lpcrToChange;
 
-    if (pMainWnd == NULL)
-        return FALSE;
-    
     if (uFlag == CHANGE_HILIGHT)
         lpcrToChange = &pMainWnd->crHilight;
     else
