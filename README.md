@@ -1,4 +1,4 @@
-<img width="320" align="right" src="README-SRC/screenshot.png">
+<img width="320" style="padding-left: 20px" align="right" src="README-SRC/screenshot.png">
 
 [![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)](https://github.com/n0dere/HiCC/search?l=c)
 [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://www.microsoft.com/en-us/windows)
@@ -11,6 +11,8 @@
 - Choose a color from the palette that is automatically created based on your desktop wallpaper. Just click on any color in the palette and it will become the new selection color.
 - Return to the default color settings at any time by clicking the "Reset to default" button.
 - HiCC is licensed under the [GNU GPL v3](COPYING) (100% open source)
+- Pick a color from anywhere on the screen to use as your the selection color.
+- [Wallpaper Engine](https://www.wallpaperengine.io) wallpaper support!
 
 ## Build
 1. Clone the project repository, or download a zip archive with sources and unpack them.
