@@ -275,7 +275,11 @@ static BOOL MainWindow_OnCommand(PMAINWINDOW pMainWnd, WORD wId)
             return ApplyButton_OnClick(pMainWnd);
 
         case IDC_BUTTON_CANCEL:
-            DestroyWindow(pMainWnd->hWnd);
+            return DestroyWindow(pMainWnd->hWnd) != FALSE;
+        
+        case IDOK:
+            return ApplyButton_OnClick(pMainWnd) &&
+                   DestroyWindow(pMainWnd->hWnd) != FALSE;
     }
     
     return TRUE;
@@ -333,8 +337,10 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     Static_Create(hWnd, 15, 380, 270, 17, IDS_DESC_HTC);
 
     Button_Create(hWnd, IDC_BUTTON_RESET, 6, 411, 120, 23, IDS_RESET);
-    Button_Create(hWnd, IDC_BUTTON_CANCEL, 227, 411, 80, 23, IDS_CANCEL);
-    Button_Create(hWnd, IDC_BUTTON_APPLY, 313, 411, 80, 23, IDS_APPLY);
+    SetFocus(Button_Create(hWnd, IDOK, 162, 411, 73, 23, IDS_OK));
+    Button_Create(hWnd, IDC_BUTTON_CANCEL, 241, 411, 73, 23, IDS_CANCEL);
+    Button_Create(hWnd, IDC_BUTTON_APPLY, 320, 411, 73, 23, IDS_APPLY);
+    Button_SetDefault(GetDlgItem(hWnd, IDOK));
 
     EnableWindow(GetDlgItem(hWnd, IDC_BUTTON_APPLY), FALSE);
 

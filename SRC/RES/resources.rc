@@ -27,7 +27,6 @@ BEGIN
     IDS_RESET,          "Reset to default"
     IDS_CANCEL,         "Cancel"
     IDS_APPLY,          "Apply"
-    IDS_ABOUT,          "?"
     IDS_HILIGHT,        "Hilight"
     IDS_HTC,            "HotTrackingColor"
     IDS_CHANGE,         "Change"

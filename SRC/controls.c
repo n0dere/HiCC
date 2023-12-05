@@ -522,6 +522,16 @@ VOID Button_SetHBITMAP(HWND hButton, UINT uImageType, HBITMAP hBitmap)
         SendMessage(hButton, BM_SETIMAGE, (WPARAM)uImageType, (LPARAM)hBitmap);
 }
 
+VOID Button_SetDefault(HWND hButton)
+{
+    DWORD dwStyle;
+
+    if (hButton != NULL) {
+        dwStyle = GetWindowLongPtr(hButton, GWL_STYLE);
+        SetWindowLongPtr(hButton, GWL_STYLE, dwStyle | BS_DEFPUSHBUTTON); 
+    }
+}
+
 HWND Static_Create(HWND hParent, INT x, INT y, INT nWidth, INT nHeight,
                    UINT uTextId)
 {

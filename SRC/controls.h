@@ -70,6 +70,8 @@ HWND BitmapButton_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 
 VOID Button_SetHBITMAP(HWND hButton, UINT uImageType, HBITMAP hBitmap);
 
+VOID Button_SetDefault(HWND hButton);
+
 HWND Static_Create(HWND hParent, INT x, INT y, INT nWidth, INT nHeight,
                    UINT uTextId);
 
