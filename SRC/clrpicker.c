@@ -84,6 +84,11 @@ static BOOL ColorPicker_OnInit(PCOLORPICKER pPicker)
 {
     HBITMAP hbmScreen;
 
+    if (IsWindows8OrGreater() == FALSE) {
+        hbmScreen = HBITMAP_FromWindow(GetDesktopWindow());
+        pPicker->hScreenBrush = CreatePatternBrush(hbmScreen);
+    }
+
     ColorPicker_SetCursor(pPicker, MAKEINTRESOURCE(IDC_EYEDROPPER));
     
     pPicker->hTrackingTT = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS,
@@ -107,11 +112,6 @@ static BOOL ColorPicker_OnInit(PCOLORPICKER pPicker)
     
     SendMessage(pPicker->hTrackingTT, TTM_TRACKACTIVATE, (WPARAM)TRUE,
                 (LPARAM) &pPicker->toolInfo);
-    
-    if (IsWindows8OrGreater() == FALSE) {
-        hbmScreen = HBITMAP_FromWindow(GetDesktopWindow());
-        pPicker->hScreenBrush = CreatePatternBrush(hbmScreen);
-    }
 
     return TRUE;
 }
