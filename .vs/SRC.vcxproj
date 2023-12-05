@@ -175,7 +175,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\SRC\RES\eyedropper.cur" />
-    <None Include="..\SRC\RES\eyedropper.ico.kra" />
     <None Include="..\SRC\RES\icon.ico.kra" />
   </ItemGroup>
   <ItemGroup>

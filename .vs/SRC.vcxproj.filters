@@ -70,9 +70,6 @@
     <None Include="..\SRC\RES\eyedropper.cur">
       <Filter>Resources</Filter>
     </None>
-    <None Include="..\SRC\RES\eyedropper.ico.kra">
-      <Filter>Resources</Filter>
-    </None>
     <None Include="..\SRC\RES\icon.ico.kra">
       <Filter>Resources</Filter>
     </None>

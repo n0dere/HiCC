@@ -10,8 +10,8 @@
 - Preview the results of changing the selection color without applying them to your desktop. You can see how your desktop will look with the new selection color before saving the changes.
 - Choose a color from the palette that is automatically created based on your desktop wallpaper. Just click on any color in the palette and it will become the new selection color.
 - Return to the default color settings at any time by clicking the "Reset to default" button.
-- HiCC is licensed under the [GNU GPL v3](COPYING) (100% open source)
 - Pick a color from anywhere on the screen to use as your the selection color.
+- HiCC is licensed under the [GNU GPL v3](COPYING) (100% open source)
 - [Wallpaper Engine](https://www.wallpaperengine.io) wallpaper support!
 
 ## Build

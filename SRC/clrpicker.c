@@ -183,7 +183,7 @@ static INT_PTR CALLBACK ColorPicker_DlgProc(HWND hDlg, UINT uMsg,
 BOOL ColorPicker_PickColorOnScreen(HWND hParent, LPCOLORREF lpcrColorOut)
 {
     LPDLGTEMPLATE lpDlg = NULL;
-    PCOLORPICKER pColorPicker;
+    PCOLORPICKER pColorPicker = NULL;
     INT_PTR ipRes;
     LPWORD lpw;
 
@@ -193,11 +193,11 @@ BOOL ColorPicker_PickColorOnScreen(HWND hParent, LPCOLORREF lpcrColorOut)
     pColorPicker = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
                              sizeof *pColorPicker);
     
-    pColorPicker->hInstance = (HINSTANCE)GetWindowLongPtr(hParent,
-        GWLP_HINSTANCE);
-    
     if (pColorPicker == NULL)
         return FALSE;
+    
+    pColorPicker->hInstance = (HINSTANCE)GetWindowLongPtr(hParent,
+        GWLP_HINSTANCE);
 
     lpDlg = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1024);
     
