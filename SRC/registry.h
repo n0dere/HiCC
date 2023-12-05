@@ -42,6 +42,10 @@ LONG HiCCRegistrySetBOOL(LPCTSTR pszValueName, BOOL bValue);
 
 BOOL HiCCRegistryGetBOOL(LPCTSTR pszValueName);
 
+LONG HiCCRegistrySaveWindowPosition(HWND hWnd);
+
+LONG HiCCRegistryRestoreWindowPosition(HWND hWnd);
+
 LONG HiCCRegistrySaveColors(COLORREF aColors[16]);
 
 LONG HiCCRegistryGetColors(COLORREF aOutColors[16]);

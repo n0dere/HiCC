@@ -167,6 +167,42 @@ BOOL HiCCRegistryGetBOOL(LPCTSTR pszValueName)
                                  pszValueName);
 }
 
+LONG HiCCRegistrySaveWindowPosition(HWND hWnd)
+{
+    RECT rcWindow = {0};
+
+    if (hWnd == NULL)
+        return ERROR_INVALID_PARAMETER;
+
+    if (GetWindowRect(hWnd, &rcWindow) == FALSE)
+        return ERROR_INTERNAL_ERROR;
+    
+    return RegSetKeyValue(HKEY_CURRENT_USER, g_pszHiCCRegistrySubKey,
+                          TEXT("Position"), REG_BINARY, (LPCVOID)&rcWindow,
+                          sizeof rcWindow);
+}
+
+LONG HiCCRegistryRestoreWindowPosition(HWND hWnd)
+{
+    RECT rcWindow = {0};
+    DWORD cbColorsSize = sizeof rcWindow;
+    LONG lResult;
+
+    if (hWnd == NULL)
+        return ERROR_INVALID_PARAMETER;
+
+    lResult = RegGetValue(HKEY_CURRENT_USER, g_pszHiCCRegistrySubKey,
+                          TEXT("Position"), RRF_RT_REG_BINARY, NULL,
+                          (PVOID)&rcWindow, &cbColorsSize);
+    
+    if (lResult == ERROR_SUCCESS) {
+        SetWindowPos(hWnd, NULL, rcWindow.left, rcWindow.top, 0, 0,
+                     SWP_NOSIZE);
+    }
+
+    return lResult;
+}
+
 LONG HiCCRegistrySaveColors(COLORREF aColors[16])
 {
     return RegSetKeyValue(HKEY_CURRENT_USER, g_pszHiCCRegistrySubKey,

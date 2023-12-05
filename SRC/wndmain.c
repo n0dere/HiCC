@@ -295,6 +295,9 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     pMainWnd->crHilight = ColorsRegistryGetHilight();
     pMainWnd->crHotTrackingColor = ColorsRegistryGetHTC();
 
+    if (HiCCRegistryRestoreWindowPosition(pMainWnd->hWnd) != ERROR_SUCCESS)
+        MoveWindowToScreenCenter(pMainWnd->hWnd);
+
     if (Controls_RegisterAllClasses(pMainWnd->hInstance) == FALSE)
         return FALSE;
 
@@ -353,6 +356,7 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
 
 static VOID MainWindow_OnDestroy(PMAINWINDOW pMainWnd, HWND hWnd)
 {
+    HiCCRegistrySaveWindowPosition(pMainWnd->hWnd);
     HiCCRegistrySaveColors(pMainWnd->acrCustom);
     KM_FreePalette(pMainWnd->pkmPalette);
     DeleteObject(pMainWnd->hbmWallpaper);
