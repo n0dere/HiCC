@@ -274,10 +274,6 @@ static BOOL MainWindow_OnCommand(PMAINWINDOW pMainWnd, WORD wId)
         case IDC_BUTTON_APPLY:
             return ApplyButton_OnClick(pMainWnd);
 
-        case IDC_BUTTON_ABOUT:
-            AboutBox_Show(GetModuleHandle(NULL), pMainWnd->hWnd);
-            break;
-
         case IDC_BUTTON_CANCEL:
             DestroyWindow(pMainWnd->hWnd);
     }
@@ -337,7 +333,6 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     Static_Create(hWnd, 15, 380, 270, 17, IDS_DESC_HTC);
 
     Button_Create(hWnd, IDC_BUTTON_RESET, 6, 411, 120, 23, IDS_RESET);
-    Button_Create(hWnd, IDC_BUTTON_ABOUT, 198, 411, 23, 23, IDS_ABOUT);
     Button_Create(hWnd, IDC_BUTTON_CANCEL, 227, 411, 80, 23, IDS_CANCEL);
     Button_Create(hWnd, IDC_BUTTON_APPLY, 313, 411, 80, 23, IDS_APPLY);
 
@@ -413,6 +408,13 @@ static LRESULT CALLBACK MainWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
             if (MainWindow_OnCommand(pMainWnd, LOWORD(wParam)) == FALSE)
                 MainWindow_ShowErrorDialog(hWnd);
             break;
+        
+        case WM_SYSCOMMAND:
+            if (wParam == SC_CONTEXTHELP) {
+                AboutBox_Show(pMainWnd->hInstance, pMainWnd->hWnd);
+                return 0;
+            }
+            break;
 
         case WM_NCDESTROY:
             if (pMainWnd != NULL)
@@ -426,8 +428,8 @@ static LRESULT CALLBACK MainWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
 static HWND MainWindow_Create(HINSTANCE hInstance)
 {
     WNDCLASS wndClass;
-    DWORD dwStyle = WS_OVERLAPPED | WS_MINIMIZEBOX | WS_SYSMENU | WS_BORDER;
-    DWORD dwExStyle = WS_EX_APPWINDOW;
+    DWORD dwStyle = WS_OVERLAPPED | WS_SYSMENU | WS_BORDER;
+    DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_CONTEXTHELP;
     HWND hWnd = NULL;
 
     ZeroMemory(&wndClass, sizeof wndClass);
