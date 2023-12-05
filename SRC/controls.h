@@ -38,6 +38,11 @@
 
 #define XXM_COLORBOX_SET_COLOR          (WM_USER + 7)
 
+#define IDS_NONE                        0
+
+#define Button_SetIcon(hWnd, hIcon)                                 \
+    Button_SetHBITMAP(hWnd, IMAGE_ICON, (HBITMAP)(hIcon))
+
 BOOL LoadStringUTF8(UINT uId, LPTSTR pszBuffer, DWORD dwMaxSize);
 
 HWND Preview_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
@@ -60,7 +65,10 @@ VOID ColorBox_ChangeColor(HWND hColorBox, COLORREF crColor);
 HWND Button_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
                    INT nHeight, UINT uNameId);
 
+HWND BitmapButton_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
+                         INT nHeight, HBITMAP hBitmap);
 
+VOID Button_SetHBITMAP(HWND hButton, UINT uImageType, HBITMAP hBitmap);
 
 HWND Static_Create(HWND hParent, INT x, INT y, INT nWidth, INT nHeight,
                    UINT uTextId);
@@ -71,8 +79,8 @@ HWND GroupBox_Create(HWND hParent, INT x, INT y, INT nWidth, INT nHeight,
 HWND Edit_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
                  INT nHeight);
 
-BOOL Controls_RegisterAllClasses(VOID);
+BOOL Controls_RegisterAllClasses(HINSTANCE hInstance);
 
-VOID Controls_UnregisterAllClasses(VOID);
+VOID Controls_UnregisterAllClasses(HINSTANCE hInstance);
 
 #endif /* _CONTROLS_H_ */

@@ -24,6 +24,8 @@
 #include "resources.h"
 #include "controls.h"
 #include "syscolors.h"
+#include "bmutils.h"
+#include "clrpicker.h"
 
 #define DW_PALETTE_K                7
 
@@ -39,6 +41,7 @@
 #define CHANGE_HTC                  1
 
 #define WINDOW_TITLE_BUFFER_SZ      256
+#define COLOR_TEXT_BUFFER_SZ        32
 
 static const TCHAR *g_pszWindowClassName = TEXT("HiCC MainWindow");
 
@@ -49,6 +52,7 @@ static HWND g_hMainWindow = NULL;
 typedef struct tagMAINWINDOW
 {
     HWND                hWnd;
+    HINSTANCE           hInstance;
     HWND                hWndPreview;
     HBITMAP             hbmWallpaper;
     PKM_PALETTE         pkmPalette;
@@ -59,29 +63,26 @@ typedef struct tagMAINWINDOW
 
 extern VOID AboutBox_Show(HINSTANCE hInstance, HWND hWnd);
 
+VOID ColorToSpecialText(COLORREF crColor, DWORD cbSize, LPTSTR pszOut)
+{
+    UINT uRed, uGreen, uBlue;
+
+    if (pszOut == NULL || cbSize <= 0)
+        return;
+    
+    uRed = GetRValue(crColor);
+    uGreen = GetGValue(crColor);
+    uBlue = GetBValue(crColor);
+
+    _sntprintf(pszOut, cbSize, TEXT("#%02X%02X%02X [%u %u %u]"),
+               uRed, uGreen, uBlue, uRed, uGreen, uBlue);
+}
+
 static BOOL CALLBACK SetFontCallback(HWND child, LPARAM lParam)
 {
     HFONT hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
     SendMessage(child, WM_SETFONT, (WPARAM)hFont, TRUE);
     return TRUE;
-}
-
-static VOID Edit_SetColorInfo(HWND hEdit, COLORREF crColor)
-{
-    TCHAR szText[25];
-    UINT uRed, uGreen, uBlue;
-
-    if (hEdit == NULL)
-        return;
-
-    uRed = GetRValue(crColor);
-    uGreen = GetGValue(crColor);
-    uBlue = GetBValue(crColor);
-
-    _sntprintf(szText, 25, TEXT("#%02X%02X%02X [%u %u %u]"),
-               uRed, uGreen, uBlue, uRed, uGreen, uBlue);
-
-    Edit_SetText(hEdit, szText);
 }
 
 static BOOL MainWindow_ColorSelect(PMAINWINDOW pMainWnd, LPCOLORREF lpcrSel)
@@ -108,20 +109,26 @@ static BOOL MainWindow_ColorSelect(PMAINWINDOW pMainWnd, LPCOLORREF lpcrSel)
     return bResult;
 }
 
-static BOOL MainWindow_UpdateColors(PMAINWINDOW pMainWnd, COLORREF crHi,
-                                    COLORREF crHTC, BOOL bEnableApply)
+static BOOL MainWindow_UpdateColors(PMAINWINDOW pMainWnd, BOOL bEnableApply)
 {
+    COLORREF crHi, crHTC;
+    TCHAR szHiText[COLOR_TEXT_BUFFER_SZ];
+    TCHAR szHTCText[COLOR_TEXT_BUFFER_SZ];
+
     if (pMainWnd == NULL)
         return FALSE;
 
-    pMainWnd->crHilight = crHi;
-    pMainWnd->crHotTrackingColor = crHTC;
+    crHi = pMainWnd->crHilight;
+    crHTC = pMainWnd->crHotTrackingColor;
+
+    ColorToSpecialText(crHi, COLOR_TEXT_BUFFER_SZ, szHiText);
+    ColorToSpecialText(crHTC, COLOR_TEXT_BUFFER_SZ, szHTCText);
 
     Preview_UpdateColors(pMainWnd->hWndPreview, crHi, crHTC);
     ColorBox_ChangeColor(GetDlgItem(pMainWnd->hWnd, IDC_CLRBOX_HI), crHi);
     ColorBox_ChangeColor(GetDlgItem(pMainWnd->hWnd, IDC_CLRBOX_HTC), crHTC);
-    Edit_SetColorInfo(GetDlgItem(pMainWnd->hWnd, IDC_EDIT_HI), crHi);
-    Edit_SetColorInfo(GetDlgItem(pMainWnd->hWnd, IDC_EDIT_HTC), crHTC);
+    Edit_SetText(GetDlgItem(pMainWnd->hWnd, IDC_EDIT_HI), szHiText);
+    Edit_SetText(GetDlgItem(pMainWnd->hWnd, IDC_EDIT_HTC), szHTCText);
 
     EnableWindow(GetDlgItem(pMainWnd->hWnd, IDC_BUTTON_APPLY), bEnableApply);
 
@@ -144,6 +151,9 @@ static BOOL UpdateAllSystemColors(VOID)
 
 static BOOL ResetButton_OnClick(PMAINWINDOW pMainWnd)
 {
+    if (pMainWnd == NULL)
+        return FALSE;
+    
     if (HiCCRegistryGetResetAll() == TRUE) {
         if (ColorsRegistryResetToDefaultAll() != ERROR_SUCCESS)
             return FALSE;
@@ -158,13 +168,18 @@ static BOOL ResetButton_OnClick(PMAINWINDOW pMainWnd)
 
     if (UpdateAllSystemColors() != TRUE)
         return FALSE;
+    
+    pMainWnd->crHilight = ColorsRegistryGetHilight();
+    pMainWnd->crHotTrackingColor = ColorsRegistryGetHTC();
 
-    return MainWindow_UpdateColors(pMainWnd, ColorsRegistryGetHilight(),
-                                   ColorsRegistryGetHTC(), FALSE);
+    return MainWindow_UpdateColors(pMainWnd, FALSE);
 }
 
 static BOOL ApplyButton_OnClick(PMAINWINDOW pMainWnd)
 {
+    if (pMainWnd == NULL)
+        return FALSE;
+    
     if (ColorsRegistrySetHTC(pMainWnd->crHotTrackingColor) != ERROR_SUCCESS)
         return FALSE;
 
@@ -174,27 +189,47 @@ static BOOL ApplyButton_OnClick(PMAINWINDOW pMainWnd)
     if (UpdateAllSystemColors() != TRUE)
         return FALSE;
 
-    return MainWindow_UpdateColors(pMainWnd, pMainWnd->crHilight,
-                                   pMainWnd->crHotTrackingColor, FALSE);
+    return MainWindow_UpdateColors(pMainWnd, FALSE);
+}
+
+static BOOL PickColor_OnClick(PMAINWINDOW pMainWnd, UINT uFlag)
+{
+    COLORREF crNew;
+
+    if (ColorPicker_PickColorOnScreen(pMainWnd->hWnd, &crNew)) {
+
+        switch (uFlag) {
+            case CHANGE_HILIGHT:
+                pMainWnd->crHilight = crNew;
+                break;
+            
+            case CHANGE_HTC:
+                pMainWnd->crHotTrackingColor = crNew;
+                break;
+        }
+
+        return MainWindow_UpdateColors(pMainWnd, TRUE);
+    }
+    
+    return TRUE;
 }
 
 static BOOL Change_OnClick(PMAINWINDOW pMainWnd, UINT uFlag)
 {
-    COLORREF crHi, crHTC;
     LPCOLORREF lpcrToChange;
 
     if (pMainWnd == NULL)
         return FALSE;
-
-    crHi = pMainWnd->crHilight;
-    crHTC = pMainWnd->crHotTrackingColor;
-
-    lpcrToChange = (uFlag == CHANGE_HILIGHT) ? (&crHi) : (&crHTC);
+    
+    if (uFlag == CHANGE_HILIGHT)
+        lpcrToChange = &pMainWnd->crHilight;
+    else
+        lpcrToChange = &pMainWnd->crHotTrackingColor;
 
     if (MainWindow_ColorSelect(pMainWnd, lpcrToChange) == FALSE)
         return TRUE;
 
-    return MainWindow_UpdateColors(pMainWnd, crHi, crHTC, TRUE);
+    return MainWindow_UpdateColors(pMainWnd, TRUE);
 }
 
 static VOID MainWindow_ShowErrorDialog(HWND hWnd)
@@ -225,6 +260,12 @@ static BOOL MainWindow_OnCommand(PMAINWINDOW pMainWnd, WORD wId)
 
         case IDC_BUTTON_CHANGE_HTC:
             return Change_OnClick(pMainWnd, CHANGE_HTC);
+        
+        case IDC_BUTTON_PCLR_HI:
+            return PickColor_OnClick(pMainWnd, CHANGE_HILIGHT);
+        
+        case IDC_BUTTON_PCLR_HTC:
+            return PickColor_OnClick(pMainWnd, CHANGE_HTC);
 
         case IDC_BUTTON_RESET:
             return ResetButton_OnClick(pMainWnd);
@@ -234,11 +275,10 @@ static BOOL MainWindow_OnCommand(PMAINWINDOW pMainWnd, WORD wId)
 
         case IDC_BUTTON_ABOUT:
             AboutBox_Show(GetModuleHandle(NULL), pMainWnd->hWnd);
-            return TRUE;
+            break;
 
         case IDC_BUTTON_CANCEL:
             DestroyWindow(pMainWnd->hWnd);
-            return TRUE;
     }
     
     return TRUE;
@@ -248,11 +288,14 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
 {
     InitCommonControls();
 
-    if (Controls_RegisterAllClasses() == FALSE)
-        return FALSE;
-
     pMainWnd->hWnd = hWnd;
+    pMainWnd->hInstance = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
     pMainWnd->hbmWallpaper = DesktopWallpaperGetHBITMAP();
+    pMainWnd->crHilight = ColorsRegistryGetHilight();
+    pMainWnd->crHotTrackingColor = ColorsRegistryGetHTC();
+
+    if (Controls_RegisterAllClasses(pMainWnd->hInstance) == FALSE)
+        return FALSE;
 
     if (pMainWnd->hbmWallpaper != NULL) {
         pMainWnd->pkmPalette = KM_GeneratePaletteFromHBITMAP(DW_PALETTE_K,
@@ -277,6 +320,9 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     Edit_Create(hWnd, IDC_EDIT_HI, 48, 271, 160, 23);
     Edit_SetReadOnly(GetDlgItem(hWnd, IDC_EDIT_HI), TRUE);
     Button_Create(hWnd, IDC_BUTTON_CHANGE_HI, 305, 271, 80, 23, IDS_CHANGE);
+    BitmapButton_Create(hWnd, IDC_BUTTON_PCLR_HI, 276, 271, 23, 23, NULL);
+    Button_SetIcon(GetDlgItem(hWnd, IDC_BUTTON_PCLR_HI),
+        LoadIcon(pMainWnd->hInstance, MAKEINTRESOURCE(IDI_EYEDROPPER)));
     Static_Create(hWnd, 15, 304, 270, 17, IDS_DESC_HI);
 
     GroupBox_Create(hWnd, 7, 328, 385, 74, IDS_HTC);
@@ -284,6 +330,9 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     Edit_Create(hWnd, IDC_EDIT_HTC, 48, 347, 160, 23);
     Edit_SetReadOnly(GetDlgItem(hWnd, IDC_EDIT_HTC), TRUE);
     Button_Create(hWnd, IDC_BUTTON_CHANGE_HTC, 305, 347, 80, 23, IDS_CHANGE);
+    BitmapButton_Create(hWnd, IDC_BUTTON_PCLR_HTC, 276, 347, 23, 23, NULL);
+    Button_SetIcon(GetDlgItem(hWnd, IDC_BUTTON_PCLR_HTC),
+        LoadIcon(pMainWnd->hInstance, MAKEINTRESOURCE(IDI_EYEDROPPER)));
     Static_Create(hWnd, 15, 380, 270, 17, IDS_DESC_HTC);
 
     Button_Create(hWnd, IDC_BUTTON_RESET, 6, 411, 120, 23, IDS_RESET);
@@ -297,8 +346,7 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     
     HiCCRegistryGetColors(pMainWnd->acrCustom);
     
-    return MainWindow_UpdateColors(pMainWnd, ColorsRegistryGetHilight(),
-                                   ColorsRegistryGetHTC(), FALSE);
+    return MainWindow_UpdateColors(pMainWnd, FALSE);
 }
 
 static VOID MainWindow_OnDestroy(PMAINWINDOW pMainWnd, HWND hWnd)
@@ -306,14 +354,26 @@ static VOID MainWindow_OnDestroy(PMAINWINDOW pMainWnd, HWND hWnd)
     HiCCRegistrySaveColors(pMainWnd->acrCustom);
     KM_FreePalette(pMainWnd->pkmPalette);
     DeleteObject(pMainWnd->hbmWallpaper);
-    Controls_UnregisterAllClasses();
+    Controls_UnregisterAllClasses(pMainWnd->hInstance);
+}
+
+/* bPower in percent */
+static inline COLORREF MakeColorDarker(COLORREF crColor, BYTE bPower)
+{
+    FLOAT fPower = max((1.0f - (((FLOAT)bPower)) / 100.0f), 0);
+
+    return RGB(GetRValue(crColor) * fPower,
+               GetGValue(crColor) * fPower,
+               GetBValue(crColor) * fPower);
 }
 
 static LRESULT CALLBACK MainWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
                                         LPARAM lParam)
 {
-    PMAINWINDOW pMainWnd = (PMAINWINDOW)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-    COLORREF crColor, crColorD;
+    PMAINWINDOW pMainWnd;
+    COLORREF crColor;
+
+    pMainWnd = (PMAINWINDOW)GetWindowLongPtr(hWnd, GWLP_USERDATA);
     
     switch (uMsg) {
         case WM_NCCREATE:
@@ -342,12 +402,10 @@ static LRESULT CALLBACK MainWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
             break;
 
         case XXM_PALETTE_CLRSEL:
-            crColor = (COLORREF)lParam;
-
-            crColorD = RGB(GetRValue(crColor) * 0.9, GetGValue(crColor) * 0.9,
-                           GetBValue(crColor) * 0.9);
-
-            MainWindow_UpdateColors(pMainWnd, crColor, crColorD, TRUE);
+            pMainWnd->crHilight = (COLORREF)lParam;
+            crColor = MakeColorDarker((COLORREF)lParam, 10);
+            pMainWnd->crHotTrackingColor = crColor;
+            MainWindow_UpdateColors(pMainWnd, TRUE);
             break;
 
         case WM_COMMAND:

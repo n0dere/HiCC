@@ -15,11 +15,12 @@
     along with HiCC.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "resources.h"
+#include "../resources.h"
 
-IDI_APPICON ICON DISCARDABLE    "icon.ico"
-
-CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "hicc.manifest"
+IDI_APPICON                         ICON DISCARDABLE    "icon.ico"
+CREATEPROCESS_MANIFEST_RESOURCE_ID  RT_MANIFEST         "hicc.manifest"
+IDC_EYEDROPPER                      CURSOR              "eyedropper.cur"
+IDI_EYEDROPPER                      ICON                "eyedropper.ico"
 
 STRINGTABLE
 BEGIN

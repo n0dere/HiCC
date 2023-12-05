@@ -502,6 +502,26 @@ HWND Button_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
                          uId, x, y, nWidth, nHeight, uNameId);
 }
 
+HWND BitmapButton_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
+                         INT nHeight, HBITMAP hBitmap)
+{
+    HWND hButton = NULL;
+
+    hButton =  Window_Create(TEXT("Button"), 0,
+                             WS_VISIBLE | WS_CHILD | BS_BITMAP, hParent,
+                             uId, x, y, nWidth, nHeight, 0);
+    
+    Button_SetHBITMAP(hButton, IMAGE_BITMAP, hBitmap);
+    
+    return hButton;
+}
+
+VOID Button_SetHBITMAP(HWND hButton, UINT uImageType, HBITMAP hBitmap)
+{
+    if (hButton != NULL)
+        SendMessage(hButton, BM_SETIMAGE, (WPARAM)uImageType, (LPARAM)hBitmap);
+}
+
 HWND Static_Create(HWND hParent, INT x, INT y, INT nWidth, INT nHeight,
                    UINT uTextId)
 {
@@ -525,7 +545,7 @@ HWND Edit_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
                          uId, x, y, nWidth, nHeight, 0);
 }
 
-BOOL Controls_RegisterAllClasses(VOID)
+BOOL Controls_RegisterAllClasses(HINSTANCE hInstance)
 {
     WNDCLASS wndClass;
 
@@ -535,6 +555,7 @@ BOOL Controls_RegisterAllClasses(VOID)
     wndClass.lpfnWndProc = Preview_Proc;
     wndClass.lpszClassName = PREVIEWCLASSNAME;
     wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndClass.hInstance = hInstance;
 
     if (RegisterClass(&wndClass) == 0)
         return FALSE;
@@ -556,9 +577,9 @@ BOOL Controls_RegisterAllClasses(VOID)
     return TRUE;
 }
 
-VOID Controls_UnregisterAllClasses(VOID)
+VOID Controls_UnregisterAllClasses(HINSTANCE hInstance)
 {
-    UnregisterClass(COLORBOXCLASSNAME, NULL);
-    UnregisterClass(PALETTECLASSNAME, NULL);
-    UnregisterClass(PREVIEWCLASSNAME, NULL);
+    UnregisterClass(COLORBOXCLASSNAME, hInstance);
+    UnregisterClass(PALETTECLASSNAME, hInstance);
+    UnregisterClass(PREVIEWCLASSNAME, hInstance);
 }
