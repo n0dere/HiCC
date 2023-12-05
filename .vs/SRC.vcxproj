@@ -155,6 +155,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\SRC\bmutils.cpp" />
+    <ClCompile Include="..\SRC\clrpicker.c" />
     <ClCompile Include="..\SRC\registry.c" />
     <ClCompile Include="..\SRC\clrkmeans.c" />
     <ClCompile Include="..\SRC\controls.c" />
@@ -164,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\SRC\bmutils.h" />
+    <ClInclude Include="..\SRC\clrpicker.h" />
     <ClInclude Include="..\SRC\registry.h" />
     <ClInclude Include="..\SRC\clrkmeans.h" />
     <ClInclude Include="..\SRC\controls.h" />
@@ -172,13 +174,19 @@
     <ClInclude Include="..\SRC\wallpaper.h" />
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="..\SRC\hicc.manifest" />
+    <None Include="..\SRC\RES\eyedropper.cur" />
+    <None Include="..\SRC\RES\eyedropper.ico.kra" />
+    <None Include="..\SRC\RES\icon.ico.kra" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\SRC\icon.ico" />
+    <Image Include="..\SRC\RES\eyedropper.ico" />
+    <Image Include="..\SRC\RES\icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\SRC\resources.rc" />
+    <Manifest Include="..\SRC\RES\hicc.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\SRC\RES\resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

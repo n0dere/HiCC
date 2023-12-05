@@ -30,13 +30,8 @@
 
 #define DW_PALETTE_K                7
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
-#define WINDOW_WIDTH                405
-#define WINDOW_HEIGHT               470
-#else
 #define WINDOW_WIDTH                415
 #define WINDOW_HEIGHT               480
-#endif
 
 #define CHANGE_HILIGHT              0
 #define CHANGE_HTC                  1
@@ -438,7 +433,7 @@ static LRESULT CALLBACK MainWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
 static HWND MainWindow_Create(HINSTANCE hInstance)
 {
     WNDCLASS wndClass;
-    DWORD dwStyle = WS_OVERLAPPED | WS_SYSMENU | WS_BORDER;
+    DWORD dwStyle = WS_OVERLAPPED | WS_SYSMENU | WS_THICKFRAME;
     DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_CONTEXTHELP;
     HWND hWnd = NULL;
 

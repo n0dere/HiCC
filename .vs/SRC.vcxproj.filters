@@ -36,6 +36,9 @@
     <ClCompile Include="..\SRC\dlgabout.c">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="..\SRC\clrpicker.c">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\SRC\bmutils.h">
@@ -59,19 +62,36 @@
     <ClInclude Include="..\SRC\controls.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\SRC\clrpicker.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="..\SRC\hicc.manifest">
+    <None Include="..\SRC\RES\eyedropper.cur">
       <Filter>Resources</Filter>
-    </Manifest>
+    </None>
+    <None Include="..\SRC\RES\eyedropper.ico.kra">
+      <Filter>Resources</Filter>
+    </None>
+    <None Include="..\SRC\RES\icon.ico.kra">
+      <Filter>Resources</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\SRC\icon.ico">
+    <Image Include="..\SRC\RES\eyedropper.ico">
+      <Filter>Resources</Filter>
+    </Image>
+    <Image Include="..\SRC\RES\icon.ico">
       <Filter>Resources</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\SRC\resources.rc">
+    <Manifest Include="..\SRC\RES\hicc.manifest">
+      <Filter>Resources</Filter>
+    </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\SRC\RES\resources.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
