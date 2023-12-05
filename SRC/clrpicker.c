@@ -21,7 +21,9 @@
 #include <commctrl.h>
 #include <tchar.h>
 #include <string.h>
+#include <versionhelpers.h>
 
+#include "bmutils.h"
 #include "resources.h"
 
 #define CLRPICKERCLASSNAME              TEXT("ColorPickerHiCC")
@@ -39,6 +41,7 @@ typedef struct tagCOLORPICKER
     POINT                   ptCursorOld;
     TCHAR                   szTooltipText[TOOLTIP_TEXT_SZ];
     WNDPROC                 wpDialogOld;
+    HBRUSH                  hScreenBrush;
 } *PCOLORPICKER;
 
 extern VOID ColorToSpecialText(COLORREF crColor, DWORD cbSize, LPTSTR pszOut);
@@ -79,6 +82,8 @@ static VOID ColorPicker_OnMouseClick(PCOLORPICKER pPicker, INT x, INT y)
 
 static BOOL ColorPicker_OnInit(PCOLORPICKER pPicker)
 {
+    HBITMAP hbmScreen;
+
     ColorPicker_SetCursor(pPicker, MAKEINTRESOURCE(IDC_EYEDROPPER));
     
     pPicker->hTrackingTT = CreateWindowEx(WS_EX_TOPMOST, TOOLTIPS_CLASS,
@@ -102,13 +107,26 @@ static BOOL ColorPicker_OnInit(PCOLORPICKER pPicker)
     
     SendMessage(pPicker->hTrackingTT, TTM_TRACKACTIVATE, (WPARAM)TRUE,
                 (LPARAM) &pPicker->toolInfo);
+    
+    if (IsWindows8OrGreater() == FALSE) {
+        hbmScreen = HBITMAP_FromWindow(GetDesktopWindow());
+        pPicker->hScreenBrush = CreatePatternBrush(hbmScreen);
+    }
 
     return TRUE;
+}
+
+static VOID ColorPicker_OnPaint(PCOLORPICKER pPicker, LPPAINTSTRUCT lpPs)
+{
+    RECT rcWindow;
+    GetClientRect(pPicker->hWnd, &rcWindow);
+    FillRect(lpPs->hdc, &rcWindow, pPicker->hScreenBrush);
 }
 
 static LRESULT CALLBACK ColorPicker_WndProc(HWND hWnd, UINT uMsg,
                                             WPARAM wParam, LPARAM lParam)
 {
+    PAINTSTRUCT ps;
     PCOLORPICKER pPicker;
     INT x, y;
 
@@ -129,6 +147,14 @@ static LRESULT CALLBACK ColorPicker_WndProc(HWND hWnd, UINT uMsg,
             y = pPicker->ptCursor.y;
 
             ColorPicker_OnMouseClick(pPicker, x, y);
+            break;
+        
+        case WM_PAINT:
+            if (IsWindows8OrGreater() == FALSE) {
+                BeginPaint(hWnd, &ps);
+                ColorPicker_OnPaint(pPicker, &ps);
+                EndPaint(hWnd, &ps);
+            }
             break;
     }
 
@@ -180,8 +206,12 @@ BOOL ColorPicker_PickColorOnScreen(HWND hParent, LPCOLORREF lpcrColorOut)
         return FALSE;
     }
 
-    lpDlg->dwExtendedStyle = WS_EX_LAYERED | WS_EX_TOPMOST;
-    lpDlg->style = WS_POPUP | DS_MODALFRAME;
+    if (IsWindows8OrGreater() == TRUE)
+        lpDlg->dwExtendedStyle = WS_EX_LAYERED | WS_EX_TOPMOST;
+    else
+        lpDlg->dwExtendedStyle = WS_EX_TOPMOST;
+    
+    lpDlg->style = WS_POPUP;
     lpDlg->cx = GetSystemMetrics(SM_CXSCREEN);
     lpDlg->cy = GetSystemMetrics(SM_CYSCREEN);
 
@@ -195,7 +225,10 @@ BOOL ColorPicker_PickColorOnScreen(HWND hParent, LPCOLORREF lpcrColorOut)
                                    (LPARAM)pColorPicker);
     
     *lpcrColorOut = pColorPicker->crColor;
-
+    
+    if (pColorPicker->hScreenBrush != NULL)
+        DeleteObject(pColorPicker->hScreenBrush);
+    
     HeapFree(GetProcessHeap(), 0, lpDlg);
     HeapFree(GetProcessHeap(), 0, pColorPicker);
     return ipRes > 0;
