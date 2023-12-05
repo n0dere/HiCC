@@ -156,9 +156,10 @@ static INT_PTR CALLBACK ColorPicker_DlgProc(HWND hDlg, UINT uMsg,
 
 BOOL ColorPicker_PickColorOnScreen(HWND hParent, LPCOLORREF lpcrColorOut)
 {
-    DLGTEMPLATE dlg = {0};
-    INT_PTR ipRes;
+    LPDLGTEMPLATE lpDlg = NULL;
     PCOLORPICKER pColorPicker;
+    INT_PTR ipRes;
+    LPWORD lpw;
 
     if (lpcrColorOut == NULL)
         return FALSE;
@@ -172,17 +173,30 @@ BOOL ColorPicker_PickColorOnScreen(HWND hParent, LPCOLORREF lpcrColorOut)
     if (pColorPicker == NULL)
         return FALSE;
 
-    dlg.dwExtendedStyle = WS_EX_LAYERED | WS_EX_TOPMOST;
-    dlg.style = WS_POPUP | DS_MODALFRAME;
-    dlg.cx = GetSystemMetrics(SM_CXSCREEN);
-    dlg.cy = GetSystemMetrics(SM_CYSCREEN);
+    lpDlg = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 1024);
+    
+    if (lpDlg == NULL) {
+        HeapFree(GetProcessHeap(), 0, pColorPicker);
+        return FALSE;
+    }
 
-    ipRes = DialogBoxIndirectParam(NULL, &dlg, hParent,
-                                  (DLGPROC)ColorPicker_DlgProc,
-                                  (LPARAM)pColorPicker);
+    lpDlg->dwExtendedStyle = WS_EX_LAYERED | WS_EX_TOPMOST;
+    lpDlg->style = WS_POPUP | DS_MODALFRAME;
+    lpDlg->cx = GetSystemMetrics(SM_CXSCREEN);
+    lpDlg->cy = GetSystemMetrics(SM_CYSCREEN);
+
+    lpw = (LPWORD)(lpDlg + 1);
+    *lpw++ = 0;
+    *lpw++ = 0;
+
+    ipRes = DialogBoxIndirectParam(pColorPicker->hInstance,
+                                   lpDlg, hParent,
+                                   (DLGPROC)ColorPicker_DlgProc,
+                                   (LPARAM)pColorPicker);
     
     *lpcrColorOut = pColorPicker->crColor;
 
+    HeapFree(GetProcessHeap(), 0, lpDlg);
     HeapFree(GetProcessHeap(), 0, pColorPicker);
     return ipRes > 0;
 }
