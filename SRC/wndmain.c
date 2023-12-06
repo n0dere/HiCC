@@ -433,9 +433,13 @@ static LRESULT CALLBACK MainWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
 static HWND MainWindow_Create(HINSTANCE hInstance)
 {
     WNDCLASS wndClass;
-    DWORD dwStyle = WS_OVERLAPPED | WS_SYSMENU | WS_THICKFRAME;
+    DWORD dwStyle = WS_OVERLAPPED | WS_SYSMENU;
     DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_CONTEXTHELP;
     HWND hWnd = NULL;
+
+#if defined(__MINGW32__) || defined(__MINGW64__)
+    dwStyle |= WS_THICKFRAME;
+#endif
 
     ZeroMemory(&wndClass, sizeof wndClass);
 
@@ -460,12 +464,32 @@ INT WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     MSG msg;
 
+#if defined(__MINGW32__) || defined(__MINGW64__)
+    DWORD dwStyle;
+#endif
+
     LoadStringUTF8(IDS_WINDOW_TITLE, g_szWindowTitle, WINDOW_TITLE_BUFFER_SZ);
 
     if ((g_hMainWindow = MainWindow_Create(hInstance)) == NULL) {
         MainWindow_ShowErrorDialog(NULL);
         return -1;
     }
+
+    /* HACK:
+     * 
+     * CreateWindowEx creates an incorrect window lacking the WS_THICKFRAME
+     * style when compiled with MINGW compiler. No such issues are observed
+     * when using MSVC. With the WS_THICKFRAME style, the window can be
+     * resized, which is not the intended behavior. To resolve this,
+     * create a window with the WS_THICKFRAME style, after immediately
+     * remove it, and add the WS_BORDER style.
+     * 
+     */
+#if defined(__MINGW32__) || defined(__MINGW64__)
+    dwStyle = GetWindowLong(g_hMainWindow, GWL_STYLE);
+    dwStyle &= ~WS_THICKFRAME | WS_BORDER;
+    SetWindowLong(g_hMainWindow, GWL_STYLE, dwStyle);
+#endif
     
     ShowWindow(g_hMainWindow, nCmdShow);
 
