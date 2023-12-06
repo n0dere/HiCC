@@ -1,8 +1,7 @@
-<img width="320" style="padding-left: 20px" align="right" src="README-SRC/screenshot.png">
-
 [![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)](https://github.com/n0dere/HiCC/search?l=c)
 [![Windows](https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)](https://www.microsoft.com/en-us/windows)
 [![GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge)](COPYING)
+<img width="320" style="padding-left: 20px" align="right" src="README-SRC/screenshot.png">
 
 **Hilight Color Changer** (HiCC) is a utility that allows you to change the color of the selection rectangle on your desktop.
 
