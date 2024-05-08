@@ -110,19 +110,20 @@ HBITMAP DesktopWallpaperGetHBITMAP(VOID)
     LPTSTR pszWallpaperPath = NULL;
     HWND hWallpaperEngineWnd = NULL;
 
-    if ((hWallpaperEngineWnd = FindWPELiveWallpaperWindow()) == NULL) {
-        pszWallpaperPath = DesktopWallpaperGetPathSPI();
+    hWallpaperEngineWnd = FindWPELiveWallpaperWindow();
 
-        if (pszWallpaperPath == NULL)
-            pszWallpaperPath = DesktopWallpaperGetPathCached();
-        
-        if (pszWallpaperPath != NULL) {
-            hbmWallpaper = HBITMAP_FromFile(pszWallpaperPath);
-            HeapFree(GetProcessHeap(), 0, pszWallpaperPath);
-        }
-    }
-    else
+    if (hWallpaperEngineWnd != NULL)
         return HBITMAP_FromWindow(hWallpaperEngineWnd);
+    
+    pszWallpaperPath = DesktopWallpaperGetPathSPI();
+
+    if (pszWallpaperPath == NULL)
+        pszWallpaperPath = DesktopWallpaperGetPathCached();
+    
+    if (pszWallpaperPath != NULL) {
+        hbmWallpaper = HBITMAP_FromFile(pszWallpaperPath);
+        HeapFree(GetProcessHeap(), 0, pszWallpaperPath);
+    }
 
     return hbmWallpaper;
 }

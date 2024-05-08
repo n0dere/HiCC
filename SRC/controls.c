@@ -481,25 +481,26 @@ VOID ColorBox_ChangeColor(HWND hColorBox, COLORREF crColor)
         SendMessage(hColorBox, XXM_COLORBOX_SET_COLOR, 0, (LPARAM)crColor);
 }
 
-static HWND Window_Create(LPCTSTR pszClassName, DWORD dwStyleEx, DWORD dwStyle,
-                          HWND hParent, UINT uId, INT x, INT y, INT nWidth,
-                          INT nHeight, UINT uNameId)
+HWND Window_Create(HINSTANCE hInstance, HWND hParent, LPCTSTR pszClassName,
+                   UINT uId, DWORD dwStyleEx, DWORD dwStyle, INT x, INT y,
+                   INT nWidth, INT nHeight, UINT uNameId)
 {
     TCHAR szName[LOADSTRING_MAX_SZ] = {0};
 
-    if (uNameId != 0)
+    if (uNameId != ID_NONE)
         LoadStringUTF8(uNameId, szName, LOADSTRING_MAX_SZ);
 
     return CreateWindowEx(dwStyleEx, pszClassName, szName, dwStyle, x, y,
                           nWidth, nHeight, hParent, (HMENU)(UINT_PTR)uId,
-                          NULL, NULL);
+                          hInstance, NULL);
 }
 
 HWND Button_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
                    INT nHeight, UINT uNameId)
 {
-    return Window_Create(TEXT("Button"), 0, WS_VISIBLE | WS_CHILD, hParent,
-                         uId, x, y, nWidth, nHeight, uNameId);
+    return Window_Create(NULL, hParent, TEXT("Button"), uId,
+                         0, WS_VISIBLE | WS_CHILD,
+                         x, y, nWidth, nHeight, uNameId);
 }
 
 HWND BitmapButton_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
@@ -507,9 +508,9 @@ HWND BitmapButton_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
 {
     HWND hButton = NULL;
 
-    hButton =  Window_Create(TEXT("Button"), 0,
-                             WS_VISIBLE | WS_CHILD | BS_BITMAP, hParent,
-                             uId, x, y, nWidth, nHeight, 0);
+    hButton = Window_Create(NULL, hParent, TEXT("Button"), uId,
+                            0, WS_VISIBLE | WS_CHILD | BS_BITMAP,
+                            x, y, nWidth, nHeight, ID_NONE);
     
     Button_SetHBITMAP(hButton, IMAGE_BITMAP, hBitmap);
     
@@ -527,7 +528,7 @@ VOID Button_SetDefault(HWND hButton)
     DWORD dwStyle;
 
     if (hButton != NULL) {
-        dwStyle = GetWindowLongPtr(hButton, GWL_STYLE);
+        dwStyle = (DWORD) GetWindowLongPtr(hButton, GWL_STYLE);
         SetWindowLongPtr(hButton, GWL_STYLE, dwStyle | BS_DEFPUSHBUTTON); 
     }
 }
@@ -535,24 +536,26 @@ VOID Button_SetDefault(HWND hButton)
 HWND Static_Create(HWND hParent, INT x, INT y, INT nWidth, INT nHeight,
                    UINT uTextId)
 {
-    return Window_Create(TEXT("Static"), 0, WS_VISIBLE | WS_CHILD, hParent, 0,
+    return Window_Create(NULL, hParent, TEXT("Static"), ID_NONE,
+                         0, WS_VISIBLE | WS_CHILD,
                          x, y, nWidth, nHeight, uTextId);
 }
 
 HWND GroupBox_Create(HWND hParent, INT x, INT y, INT nWidth, INT nHeight,
                      UINT uTextId)
 {
-    return Window_Create(TEXT("Button"), 0,
-                         WS_VISIBLE | WS_CHILD | WS_GROUP | BS_GROUPBOX,
-                         hParent, 0, x, y, nWidth, nHeight, uTextId);
+    return Window_Create(NULL, hParent, TEXT("Button"), ID_NONE,
+                         0, WS_VISIBLE | WS_CHILD | WS_GROUP | BS_GROUPBOX,
+                         x, y, nWidth, nHeight, uTextId);
 }
 
 HWND Edit_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
                  INT nHeight)
 {
-    return Window_Create(TEXT("Edit"), WS_EX_CLIENTEDGE,
-                         WS_VISIBLE | WS_CHILD | ES_LEFT | ES_CENTER, hParent,
-                         uId, x, y, nWidth, nHeight, 0);
+    return Window_Create(NULL, hParent, TEXT("Edit"), uId,
+                         WS_EX_CLIENTEDGE,
+                         WS_VISIBLE | WS_CHILD | ES_LEFT | ES_CENTER,
+                         x, y, nWidth, nHeight, ID_NONE);
 }
 
 BOOL Controls_RegisterAllClasses(HINSTANCE hInstance)

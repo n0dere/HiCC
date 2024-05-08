@@ -28,22 +28,17 @@
 #include "clrpicker.h"
 #include "wndcenter.h"
 
-#define DW_PALETTE_K                7
+#define DW_PALETTE_K                8
 
-#define WINDOW_WIDTH                415
-#define WINDOW_HEIGHT               480
+#define WINDOW_WIDTH                399
+#define WINDOW_HEIGHT               440
+
+#define WINDOW_CLASSNAME            TEXT("HiCC MainWindow")
 
 #define CHANGE_HILIGHT              0
 #define CHANGE_HTC                  1
 
-#define WINDOW_TITLE_BUFFER_SZ      256
-#define COLOR_TEXT_BUFFER_SZ        32
-
-static const TCHAR *g_pszWindowClassName = TEXT("HiCC MainWindow");
-
-static TCHAR g_szWindowTitle[WINDOW_TITLE_BUFFER_SZ];
-
-static HWND g_hMainWindow = NULL;
+#define COLOR_TEXT_SZ               32
 
 typedef struct tagMAINWINDOW
 {
@@ -120,8 +115,8 @@ static BOOL MainWindow_ColorSelect(PMAINWINDOW pMainWnd, LPCOLORREF lpcrSel)
 static BOOL MainWindow_UpdateColors(PMAINWINDOW pMainWnd, BOOL bEnableApply)
 {
     COLORREF crHi, crHTC;
-    TCHAR szHiText[COLOR_TEXT_BUFFER_SZ];
-    TCHAR szHTCText[COLOR_TEXT_BUFFER_SZ];
+    TCHAR szHiText[COLOR_TEXT_SZ];
+    TCHAR szHTCText[COLOR_TEXT_SZ];
 
     if (pMainWnd == NULL)
         return FALSE;
@@ -129,8 +124,8 @@ static BOOL MainWindow_UpdateColors(PMAINWINDOW pMainWnd, BOOL bEnableApply)
     crHi = pMainWnd->crHilight;
     crHTC = pMainWnd->crHotTrackingColor;
 
-    ColorToSpecialText(crHi, COLOR_TEXT_BUFFER_SZ, szHiText);
-    ColorToSpecialText(crHTC, COLOR_TEXT_BUFFER_SZ, szHTCText);
+    ColorToSpecialText(crHi, COLOR_TEXT_SZ, szHiText);
+    ColorToSpecialText(crHTC, COLOR_TEXT_SZ, szHTCText);
 
     Preview_UpdateColors(pMainWnd->hWndPreview, crHi, crHTC);
     ColorBox_ChangeColor(GetDlgItem(pMainWnd->hWnd, IDC_CLRBOX_HI), crHi);
@@ -241,9 +236,7 @@ static VOID MainWindow_ShowErrorDialog(HWND hWnd)
                   (LPTSTR)&lpszErrorMessage, 0, NULL);
 
     if (lpszErrorMessage != NULL) {
-        MessageBox(hWnd, lpszErrorMessage, g_szWindowTitle,
-                   MB_OK | MB_ICONERROR);
-
+        MessageBox(hWnd, lpszErrorMessage, NULL, MB_OK | MB_ICONERROR);
         HeapFree(GetProcessHeap(), 0, lpszErrorMessage);
     }
 }
@@ -283,7 +276,7 @@ static BOOL MainWindow_OnCommand(PMAINWINDOW pMainWnd, WORD wId)
 static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
 {
     InitCommonControls();
-
+    
     pMainWnd->hWnd = hWnd;
     pMainWnd->hInstance = (HINSTANCE)GetWindowLongPtr(hWnd, GWLP_HINSTANCE);
     pMainWnd->hbmWallpaper = DesktopWallpaperGetHBITMAP();
@@ -304,11 +297,8 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     }
 
     GroupBox_Create(hWnd, 7, 7, 385, 243, IDS_PREVIEW);
-
     pMainWnd->hWndPreview = Preview_Create(hWnd, 0, 15, 26, 369, 191);
-
     Preview_UpdateBG(pMainWnd->hWndPreview, pMainWnd->hbmWallpaper);
-
     Palette_Create(hWnd, IDC_PALETTE, 15, 216, 369, 25, pMainWnd->pkmPalette);
 
     if (pMainWnd->hbmWallpaper == NULL)
@@ -322,8 +312,8 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     BitmapButton_Create(hWnd, IDC_BUTTON_PCLR_HI, 276, 271, 23, 23, NULL);
     Button_SetIcon(GetDlgItem(hWnd, IDC_BUTTON_PCLR_HI),
         LoadIcon(pMainWnd->hInstance, MAKEINTRESOURCE(IDI_EYEDROPPER)));
-    Static_Create(hWnd, 15, 304, 270, 17, IDS_DESC_HI);
-
+    Static_Create(hWnd, 15, 304, 360, 17, IDS_DESC_HI);
+    
     GroupBox_Create(hWnd, 7, 328, 385, 74, IDS_HTC);
     ColorBox_Create(hWnd, IDC_CLRBOX_HTC, 15, 347, 23, 23);
     Edit_Create(hWnd, IDC_EDIT_HTC, 48, 347, 160, 23);
@@ -332,7 +322,7 @@ static BOOL MainWindow_OnCreate(PMAINWINDOW pMainWnd, HWND hWnd)
     BitmapButton_Create(hWnd, IDC_BUTTON_PCLR_HTC, 276, 347, 23, 23, NULL);
     Button_SetIcon(GetDlgItem(hWnd, IDC_BUTTON_PCLR_HTC),
         LoadIcon(pMainWnd->hInstance, MAKEINTRESOURCE(IDI_EYEDROPPER)));
-    Static_Create(hWnd, 15, 380, 270, 17, IDS_DESC_HTC);
+    Static_Create(hWnd, 15, 380, 360, 17, IDS_DESC_HTC);
 
     Button_Create(hWnd, IDC_BUTTON_RESET, 6, 411, 120, 23, IDS_RESET);
     SetFocus(Button_Create(hWnd, IDOK, 162, 411, 73, 23, IDS_OK));
@@ -362,10 +352,13 @@ static VOID MainWindow_OnDestroy(PMAINWINDOW pMainWnd, HWND hWnd)
 static inline COLORREF MakeColorDarker(COLORREF crColor, BYTE bPower)
 {
     FLOAT fPower = max((1.0f - (((FLOAT)bPower)) / 100.0f), 0);
+    FLOAT fRed, fGreen, fBlue;
 
-    return RGB(GetRValue(crColor) * fPower,
-               GetGValue(crColor) * fPower,
-               GetBValue(crColor) * fPower);
+    fRed = GetRValue(crColor) * fPower;
+    fGreen = GetGValue(crColor) * fPower;
+    fBlue = GetBValue(crColor) * fPower;
+
+    return RGB(fRed, fGreen, fBlue);
 }
 
 static LRESULT CALLBACK MainWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
@@ -430,68 +423,56 @@ static LRESULT CALLBACK MainWindow_Proc(HWND hWnd, UINT uMsg, WPARAM wParam,
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-static HWND MainWindow_Create(HINSTANCE hInstance)
+static BOOL MainWindow_RegisterClass(HINSTANCE hInstance)
 {
     WNDCLASS wndClass;
-    DWORD dwStyle = WS_OVERLAPPED | WS_SYSMENU;
-    DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_CONTEXTHELP;
-    HWND hWnd = NULL;
-
-#if defined(__MINGW32__) || defined(__MINGW64__)
-    dwStyle |= WS_THICKFRAME;
-#endif
 
     ZeroMemory(&wndClass, sizeof wndClass);
 
     wndClass.lpfnWndProc = MainWindow_Proc;
     wndClass.hInstance = hInstance;
-    wndClass.lpszClassName = g_pszWindowClassName;
+    wndClass.lpszClassName = WINDOW_CLASSNAME;
     wndClass.cbWndExtra = sizeof(MAINWINDOW);
     wndClass.hCursor = LoadCursor(NULL, IDC_ARROW);
     wndClass.hbrBackground = (HBRUSH)COLOR_WINDOW;
     wndClass.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPICON));
 
-    if (RegisterClass(&wndClass) == 0)
-        return NULL;
+    return RegisterClass(&wndClass) != 0;
+}
 
-    return CreateWindowEx(dwExStyle, g_pszWindowClassName, g_szWindowTitle,
-                          dwStyle, CW_USEDEFAULT, CW_USEDEFAULT, WINDOW_WIDTH,
-                          WINDOW_HEIGHT, NULL, NULL, hInstance, NULL);
+static HWND MainWindow_Create(HINSTANCE hInstance)
+{
+    DWORD dwStyle = WS_SYSMENU | WS_CAPTION;
+    DWORD dwExStyle = WS_EX_APPWINDOW | WS_EX_CONTEXTHELP;
+    RECT rect = { 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT };
+    HWND hWnd = NULL;
+    
+    AdjustWindowRectEx(&rect, dwStyle, FALSE, dwExStyle);
+
+    return Window_Create(hInstance, NULL, WINDOW_CLASSNAME, ID_NONE,
+                         dwExStyle, dwStyle,
+                         CW_USEDEFAULT, CW_USEDEFAULT,
+                         rect.right - rect.left, rect.bottom - rect.top,
+                         IDS_WINDOW_TITLE);
 }
 
 INT WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                      PTSTR pCmdLine, INT nCmdShow)
 {
     MSG msg;
+    HWND hWnd = NULL;
 
-#if defined(__MINGW32__) || defined(__MINGW64__)
-    DWORD dwStyle;
-#endif
-
-    LoadStringUTF8(IDS_WINDOW_TITLE, g_szWindowTitle, WINDOW_TITLE_BUFFER_SZ);
-
-    if ((g_hMainWindow = MainWindow_Create(hInstance)) == NULL) {
+    if (MainWindow_RegisterClass(hInstance) == FALSE) {
         MainWindow_ShowErrorDialog(NULL);
         return -1;
     }
 
-    /* HACK:
-     * 
-     * CreateWindowEx creates an incorrect window lacking the WS_THICKFRAME
-     * style when compiled with MINGW compiler. No such issues are observed
-     * when using MSVC. With the WS_THICKFRAME style, the window can be
-     * resized, which is not the intended behavior. To resolve this,
-     * create a window with the WS_THICKFRAME style, after immediately
-     * remove it, and add the WS_BORDER style.
-     * 
-     */
-#if defined(__MINGW32__) || defined(__MINGW64__)
-    dwStyle = GetWindowLong(g_hMainWindow, GWL_STYLE);
-    dwStyle &= ~WS_THICKFRAME | WS_BORDER;
-    SetWindowLong(g_hMainWindow, GWL_STYLE, dwStyle);
-#endif
-    
-    ShowWindow(g_hMainWindow, nCmdShow);
+    if ((hWnd = MainWindow_Create(hInstance)) == NULL) {
+        MainWindow_ShowErrorDialog(NULL);
+        return -1;
+    }
+
+    ShowWindow(hWnd, nCmdShow);
 
     while (GetMessage(&msg, NULL, 0, 0) > 0) {
         TranslateMessage(&msg);

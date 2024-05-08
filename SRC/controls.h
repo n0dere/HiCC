@@ -38,7 +38,7 @@
 
 #define XXM_COLORBOX_SET_COLOR          (WM_USER + 7)
 
-#define IDS_NONE                        0
+#define ID_NONE                         0
 
 #define Button_SetIcon(hWnd, hIcon)                                 \
     Button_SetHBITMAP(hWnd, IMAGE_ICON, (HBITMAP)(hIcon))
@@ -61,6 +61,10 @@ HWND ColorBox_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
                      INT nHeight);
 
 VOID ColorBox_ChangeColor(HWND hColorBox, COLORREF crColor);
+
+HWND Window_Create(HINSTANCE hInstance, HWND hParent, LPCTSTR pszClassName,
+                   UINT uId, DWORD dwStyleEx, DWORD dwStyle, INT x, INT y,
+                   INT nWidth, INT nHeight, UINT uNameId);
 
 HWND Button_Create(HWND hParent, UINT uId, INT x, INT y, INT nWidth,
                    INT nHeight, UINT uNameId);
