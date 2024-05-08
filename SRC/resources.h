@@ -17,8 +17,8 @@
 
 #include <Windows.h>
 
-#define VER_APPVERSION              1,2,1,0
-#define VER_APPVERSION_STR          "1.2.1\0"
+#define VER_APPVERSION              1,2,2,0
+#define VER_APPVERSION_STR          "1.2.2\0"
 
 #define IDC_BUTTON_RESET            101
 #define IDC_BUTTON_CANCEL           102

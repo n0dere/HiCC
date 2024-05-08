@@ -14,7 +14,7 @@
 #   along with HiCC.  If not, see <https://www.gnu.org/licenses/>.
 
 cmake_minimum_required(VERSION 3.10)
-project(HiCC VERSION 1.1)
+project(HiCC VERSION 1.2.2)
 
 if (NOT WIN32)
     message(FATAL_ERROR "Only Microsoft Windows")
