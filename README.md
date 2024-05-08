@@ -11,41 +11,6 @@
 - Return to the default color settings at any time by clicking the "Reset to default" button.
 - HiCC is licensed under the [GNU GPL v3](COPYING) (100% open source)
 
-## Build
-1. Clone the project repository, or download a zip archive with sources and unpack them.
-```
-git clone https://github.com/n0dere/HiCC
-```
-2. Select how to build the project:
-<details> 
-<summary align="center">MS Visual Studio Community (MSVC)</summary>
-
----
-
-3. Open HiCC.sln using Visual Studio
-4. Build by clicking on the "Build" menu and selecting "Build Solution." 
-5. Open "(x64/)Release/HilightColorChanger_(x32/x64).exe" in the project directory
-
----
-
-</details>
-<details> 
-<summary align="center">CMake (MSVC/MINGW) </summary>
-
----
-
-3. Open the console in the project folder.
-4. Enter this into the console:
-```
-cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release
-cmake --build ./build
-```
-5. Open "HilightColorChanger_(x32/x64).exe" in the build directory
-
----
-
-</details>
-
 ## Compatibility
 | OS            | Works?             | Note                   |
 |---------------|:------------------:|------------------------|
@@ -56,6 +21,25 @@ cmake --build ./build
 | Windows 7     | :heavy_check_mark: | 6.1.7601               |
 | Windows Vista | :grey_question:    | Not tested             |
 | Windows XP    | :x:                | Just not supported     |
+
+## Build
+### Getting the source
+Clone the project repository or download a zip archive with sources and unpack them
+```
+git clone https://github.com/n0dere/HiCC
+```
+
+### Build using MS Visual Studio
+1. Open HiCC.sln using Visual Studio
+2. Build the solution by clicking on the "Build" menu and selecting "Build Solution" (Ctrl + Shift + B)
+
+![Build Solution](README-SRC/build_solution.png)
+
+### Build using CMake
+```
+cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release
+cmake --build ./build
+```
 
 ---
 
